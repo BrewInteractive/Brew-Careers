@@ -1,5 +1,3 @@
-import { cssBundleHref } from "@remix-run/css-bundle";
-import type { LinksFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -8,10 +6,30 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+
+import { cssBundleHref } from "@remix-run/css-bundle";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
+
+export const meta: MetaFunction = ({ location }) => {
+  const path = location.pathname;
+  const pathParts = path.split("/");
+
+  const pageTitle = pathParts.every((val) => val === "")
+    ? "Careers - Jobs - Brew Interactive"
+    : `${pathParts.slice(1, 2)} - Brew Interactive`;
+
+  return [
+    { title: pageTitle },
+    {
+      name: "description",
+      content: pageTitle,
+    },
+  ];
+};
 
 export default function App() {
   return (

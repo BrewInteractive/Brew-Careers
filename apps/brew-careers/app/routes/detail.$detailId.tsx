@@ -8,7 +8,6 @@ export let loader: LoaderFunction = async ({ params }) => {
     const response = await fetch(
       `https://jsonplaceholder.typicode.com/todos/${detailId}`
     );
-    console.log("response", response);
     const data = await response.json();
 
     return data;
