@@ -1,14 +1,31 @@
-import { LiveReload, Outlet, ScrollRestoration } from "@remix-run/react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { LiveReload, Meta, Outlet, ScrollRestoration } from "@remix-run/react";
+
+import { cssBundleHref } from "@remix-run/css-bundle";
+
+export const links: LinksFunction = () => [
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Careers - Jobs - Brew Interactive" },
+    {
+      name: "description",
+      content: "Careers - Jobs - Brew Interactive",
+    },
+  ];
+};
 
 export default function App() {
   return (
     <html lang="en">
       <head>
+        <Meta />
         <meta charSet="utf-8" />
         <meta content="IE=Edge,chrome=1" http-equiv="X-UA-Compatible" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-        <title>Careers - Jobs - Brew Interactive</title>
-        <meta content="Careers - Jobs - Brew Interactive" name="description" />
+
         <meta
           content="Careers - Jobs - Brew Interactive"
           itemProp="description"
