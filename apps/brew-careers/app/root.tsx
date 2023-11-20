@@ -7,19 +7,12 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export const meta: MetaFunction = ({ location }) => {
-  const path = location.pathname;
-  const pathParts = path.split("/");
-
-  const pageTitle = pathParts.every((val) => val === "")
-    ? "Careers - Jobs - Brew Interactive"
-    : `${pathParts.slice(1, 2)} - Brew Interactive`;
-
+export const meta: MetaFunction = () => {
   return [
-    { title: pageTitle },
+    { title: "Careers - Jobs - Brew Interactive" },
     {
       name: "description",
-      content: pageTitle,
+      content: "Careers - Jobs - Brew Interactive",
     },
   ];
 };

@@ -1,5 +1,3 @@
-import { Link } from "@remix-run/react";
-
 export default function Home() {
   return (
     <body className="offers-controller index" id="index">

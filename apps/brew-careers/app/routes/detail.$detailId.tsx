@@ -1,6 +1,15 @@
-import { Outlet, useLoaderData, useParams } from "@remix-run/react";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { useLoaderData, useParams } from "@remix-run/react";
 
-import { type LoaderFunction } from "@remix-run/node";
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Detail Page" },
+    {
+      name: "description",
+      content: "Detail Page",
+    },
+  ];
+};
 
 export let loader: LoaderFunction = async ({ params }) => {
   try {
