@@ -1,0 +1,1 @@
+!function(n){n.fn.oldReady=n.fn.ready,n.fn.ready=(e=>n.fn.oldReady(function(){try{e&&e.apply(n,arguments)}catch(o){console.error(o)}}))}(jQuery);
