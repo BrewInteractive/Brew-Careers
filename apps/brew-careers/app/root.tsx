@@ -22,10 +22,10 @@ export default function App() {
         <meta content="images/share_image.png" property="og:image" />
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
-        <meta content="https://brew.recruitee.com/" property="og:url" />
+        <meta content="https://jobs.brewww.com/" property="og:url" />
         <meta content="Brew Interactive" property="og:site_name" />
         <meta content="website" property="og:type" />
-        <link href="https://brew.recruitee.com/" rel="canonical" />
+        <link href="https://jobs.brewww.com/" rel="canonical" />
         <meta name="csrf-param" content="authenticity_token" />
         <meta
           name="csrf-token"
