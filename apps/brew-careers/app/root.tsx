@@ -1,4 +1,4 @@
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { LiveReload, Meta, Outlet, ScrollRestoration } from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
