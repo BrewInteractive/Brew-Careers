@@ -150,7 +150,7 @@ export default function Home() {
                     <div className="row">
                       <div className="col-md-8 col-xs-12 col-centered">
                         <h5 className="job-title">
-                          <a href="/o/business-analyst">Business Analyst</a>
+                          <a href="/business-analyst">Business Analyst</a>
                         </h5>
 
                         <div className="department">Product</div>
@@ -160,10 +160,7 @@ export default function Home() {
                         </ul>
                       </div>
                       <div className="col-md-4 col-xs-12 apply-now col-centered">
-                        <a
-                          className="btn btn-primary"
-                          href="/o/business-analyst"
-                        >
+                        <a className="btn btn-primary" href="/business-analyst">
                           View job
                         </a>
                       </div>
@@ -178,7 +175,7 @@ export default function Home() {
                     <div className="row">
                       <div className="col-md-8 col-xs-12 col-centered">
                         <h5 className="job-title">
-                          <a href="/o/internship-at-brew">Internship at Brew</a>
+                          <a href="/internship-at-brew">Internship at Brew</a>
                         </h5>
 
                         <div className="department">Development</div>
@@ -190,7 +187,7 @@ export default function Home() {
                       <div className="col-md-4 col-xs-12 apply-now col-centered">
                         <a
                           className="btn btn-primary"
-                          href="/o/internship-at-brew"
+                          href="/internship-at-brew"
                         >
                           View job
                         </a>
@@ -206,7 +203,7 @@ export default function Home() {
                     <div className="row">
                       <div className="col-md-8 col-xs-12 col-centered">
                         <h5 className="job-title">
-                          <a href="/o/uxui-designer-remote-or-inoffice">
+                          <a href="/uxui-designer-remote-or-inoffice">
                             UX/UI Designer (remote or in-office)
                           </a>
                         </h5>
@@ -220,7 +217,7 @@ export default function Home() {
                       <div className="col-md-4 col-xs-12 apply-now col-centered">
                         <a
                           className="btn btn-primary"
-                          href="/o/uxui-designer-remote-or-inoffice"
+                          href="/uxui-designer-remote-or-inoffice"
                         >
                           View job
                         </a>
@@ -236,7 +233,7 @@ export default function Home() {
                     <div className="row">
                       <div className="col-md-8 col-xs-12 col-centered">
                         <h5 className="job-title">
-                          <a href="/o/backend-engineer-node-net-core-remote-or-inoffice">
+                          <a href="/backend-engineer-node-net-core-remote-or-inoffice">
                             Backend Engineer (Node, .Net Core) (remote or
                             in-office)
                           </a>
@@ -251,7 +248,7 @@ export default function Home() {
                       <div className="col-md-4 col-xs-12 apply-now col-centered">
                         <a
                           className="btn btn-primary"
-                          href="/o/backend-engineer-node-net-core-remote-or-inoffice"
+                          href="/backend-engineer-node-net-core-remote-or-inoffice"
                         >
                           View job
                         </a>
@@ -267,7 +264,7 @@ export default function Home() {
                     <div className="row">
                       <div className="col-md-8 col-xs-12 col-centered">
                         <h5 className="job-title">
-                          <a href="/o/frontend-engineer-remote-or-inoffice">
+                          <a href="/frontend-engineer-remote-or-inoffice">
                             Frontend Engineer (remote or in-office)
                           </a>
                         </h5>
@@ -281,7 +278,7 @@ export default function Home() {
                       <div className="col-md-4 col-xs-12 apply-now col-centered">
                         <a
                           className="btn btn-primary"
-                          href="/o/frontend-engineer-remote-or-inoffice"
+                          href="/frontend-engineer-remote-or-inoffice"
                         >
                           View job
                         </a>
