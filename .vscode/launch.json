@@ -17,7 +17,7 @@
       "processId": "${command:PickProcess}",
       "request": "attach",
       "skipFiles": ["<node_internals>/**"],
-      "type": "pwa-node"
+      "type": "node"
     }
   ]
 }
