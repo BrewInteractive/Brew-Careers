@@ -1,47 +1,27 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { Client } from "@notionhq/client";
 import { type LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import React from "react";
+import Header from "~/components/header/header";
+import HeaderInfoHome from "~/components/headerInfoHome/headerInfoHome";
+import type { JobsPageProps, JobsResponse } from "~/lib/interfaces/job";
 
-interface DataBaseQueryResponse {
-  results: Results[];
-}
-interface Results {
-  properties: ResultsProperties;
-  id: string;
-}
-interface ResultsProperties {
-  Tags: TagsProperties;
-  Slug: SlugProperties;
-  "Job Title": JobProperties;
-}
-interface TagsProperties {
-  multi_select: [{ name: string }];
-}
-interface SlugProperties {
-  rich_text: [{ plain_text: string }];
-}
-interface JobProperties {
-  title: [{ plain_text: string }];
-}
-
-export let loader: LoaderFunction = async () => {
+export let loader: LoaderFunction = async (): Promise<JobsPageProps[]> => {
   try {
-    console.log("process.env.NOTION_API_KEY", process.env.NOTION_API_KEY);
-
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
     const response = (await notion.databases.query({
       database_id: process.env.DATABASE_ID ?? "",
-    })) as unknown as DataBaseQueryResponse;
+    })) as unknown as JobsResponse;
 
     return response.results.map((job) => {
       return {
-        tagName: job.properties.Tags.multi_select[0].name,
-        jobId: job.id,
-        plainText: job.properties.Slug.rich_text[0].plain_text,
-        jobTitle: job.properties["Job Title"].title[0].plain_text,
+        tag: job.properties.Tags.multi_select[0].name,
+        id: job.id,
+        slug: job.properties.Slug.rich_text[0].plain_text,
+        title: job.properties["Job Title"].title[0].plain_text,
       };
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-unused-expressions
     });
   } catch (error) {
     throw new Error("Failed to load data");
@@ -49,121 +29,16 @@ export let loader: LoaderFunction = async () => {
 };
 
 export default function Home() {
-  const data = useLoaderData<typeof loader>();
+  const jobs = useLoaderData<JobsPageProps[]>();
+
   return (
     <body className="offers-controller index" id="index">
       <div id="components-container">
-        <div className="header-component component" id="section-112287">
-          <div
-            className="header-cover-image white-left-logo"
-            style={{
-              backgroundImage: "url(images/normal_photo_1551198210.jpg)",
-            }}
-          >
-            <div
-              className="overlay"
-              style={{ backgroundColor: "#222933", opacity: 0 }}
-            ></div>
-          </div>
-
-          <div className="white-left-logo">
-            <nav className="navbar navbar-default" role="navigation">
-              <div className="container">
-                <h1 className="brand">
-                  <a href="/">
-                    <img
-                      title="Careers - Jobs - Brew Interactive"
-                      alt="Careers - Jobs - Brew Interactive"
-                      src="images/thumb_photo_1652974157.png"
-                    />
-                  </a>
-                </h1>
-                <div className="pull-right buttons-wrap">
-                  <div className="hidden-xs hidden-sm buttons-wrap">
-                    <a
-                      className="company-link btn btn-primary hidden-xs"
-                      target="_blank"
-                      rel="nofollow noopener"
-                      href="https://brewww.com"
-                    >
-                      Company website
-                      <i className="fa fa-arrow-circle-right"></i>
-                    </a>
-
-                    <ul className="nav navbar-nav socials hidden-xs navbar-right">
-                      <li>
-                        <a
-                          target="_blank"
-                          rel="noopener"
-                          href="https://www.linkedin.com/company/brew-interactive/"
-                        >
-                          <i className="fa fa-linkedin-square"></i>
-                        </a>
-                      </li>
-
-                      <li>
-                        <a
-                          target="_blank"
-                          rel="noopener"
-                          href="http://twitter.com/brewinteractive"
-                        >
-                          <i className="fa fa-twitter-square"></i>
-                        </a>
-                      </li>
-
-                      <li>
-                        <a
-                          target="_blank"
-                          rel="noopener"
-                          href="https://instagram.com/brew_interactive"
-                        >
-                          <i className="fa fa-instagram"></i>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <button
-                  className="navbar-toggle"
-                  data-target="#navbar-collapse"
-                  data-toggle="collapse"
-                  type="button"
-                >
-                  <span className="sr-only">Toggle navigation</span>
-                  <span className="icon-bar"></span>
-                  <span className="icon-bar"></span>
-                  <span className="icon-bar"></span>
-                </button>
-
-                {/* <div className="collapse navbar-collapse" id="navbar-collapse">
-                  <ul className="menu nav navbar-nav">
-                    <li>
-                      <a href="/">Home</a>
-                    </li>
-
-                    <li>
-                      <a href="/#section-112289">Jobs</a>
-                    </li>
-                  </ul>
-                </div> */}
-              </div>
-            </nav>
-            <div className="content container">
-              <div className="info-container">
-                <div className="info">
-                  <h2>Welcome to the Brew Careers</h2>
-                  <h3>We are looking for talents to blend</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="spacing"></div>
-        </div>
+        <Header info={<HeaderInfoHome />} />
 
         <div className="text-component component" id="section-112288">
           <div className="no-photo container">
-            <h3 className="section-title">We are Brew Interactive</h3>
+            <h3 className="section-title">We are {process.env.COMPANY}</h3>
 
             <h4 className="section-subtitle">
               Named before 3rd wave coffee shops and home-brewing became popular
@@ -186,7 +61,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="offers-component component" id="section-112289">
+        <div className="offers-component component" id="jobs">
           <div className="container">
             <h3 className="section-title">Join the team</h3>
 
@@ -197,22 +72,20 @@ export default function Home() {
                 <div className="filters-container"></div>
                 <div className="clearfix"></div>
                 <div className="list-container list">
-                  {data.map((job: any, index: any) => (
+                  {jobs.map((job, index) => (
                     <div className="job" id="job-1104965" key={`job-${index}`}>
                       <div className="row">
                         <div className="col-md-8 col-xs-12 col-centered">
                           <h5 className="job-title">
-                            <a href={`/${job.plainText}/${job.jobId}`}>
-                              {job.jobTitle}
-                            </a>
+                            <a href={`/${job.slug}/${job.id}`}>{job.title}</a>
                           </h5>
 
-                          <div className="department">{job.tagName}</div>
+                          <div className="department">{job.tag}</div>
                         </div>
                         <div className="col-md-4 col-xs-12 apply-now col-centered">
                           <a
                             className="btn btn-primary"
-                            href={`/${job.plainText}/${job.jobId}`}
+                            href={`/${job.slug}/${job.id}`}
                           >
                             View job
                           </a>
@@ -238,7 +111,7 @@ export default function Home() {
           <div
             className="perks-background-image"
             style={{
-              backgroundImage: "url(images/normal_photo_1551257038.jpg)",
+              backgroundImage: "url(/images/normal_photo_1551257038.jpg)",
               backgroundColor: "white",
             }}
           >
@@ -341,25 +214,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* <footer className="container">
-        <a
-          target="_blank"
-          className="footer-logo"
-          rel="noopener"
-          href="https://recruitee.com"
-        >
-          <span>
-            <span
-              className="translation_missing"
-              title="translation missing: en.careers.common.hiring_with"
-            >
-              Hiring With
-            </span>
-          </span>
-          <img src="images/logo__horizontal-95300540fb91da99f96dab9a76748ac00a0b39a5f02d432d373259194112dabb.svg" />
-        </a>
-      </footer> */}
     </body>
   );
 }

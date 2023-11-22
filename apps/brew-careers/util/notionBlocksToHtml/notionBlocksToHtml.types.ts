@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-
-import { Annotation } from "util/createStyleString/createStyleString.types";
+import type { Annotation } from "util/createStyleString/createStyleString.types";
 
 export interface Block {
   object: string;

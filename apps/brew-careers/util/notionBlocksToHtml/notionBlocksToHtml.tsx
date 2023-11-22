@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-import { Block, RichText } from "./createHtmlElement.types";
+import type { Block, RichText } from "./notionBlocksToHtml.types";
 
 import React from "react";
 import createStyleString from "../createStyleString/createStyleString";
@@ -51,10 +50,10 @@ function createHtmlElement(block: Block): React.ReactNode {
   );
 }
 
-function createPage(blocks: Block[]): React.ReactNode {
+function notionBlocksToHtml(blocks: Block[]): React.ReactNode {
   return blocks.map((block, index) => (
     <div key={index}>{createHtmlElement(block)}</div>
   ));
 }
 
-export default createPage;
+export default notionBlocksToHtml;

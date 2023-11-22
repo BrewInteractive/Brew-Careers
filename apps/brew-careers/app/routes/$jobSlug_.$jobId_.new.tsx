@@ -1,153 +1,39 @@
+import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
+
+import { Client } from "@notionhq/client";
+import Header from "~/components/header/header";
+import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
+import type { LoaderFunction } from "@remix-run/node";
+import React from "react";
+import { useLoaderData } from "@remix-run/react";
+
+export let loader: LoaderFunction = async ({
+  params,
+}): Promise<JobsPageProps> => {
+  try {
+    const notion = new Client({ auth: process.env.NOTION_API_KEY });
+
+    const job = (await notion.pages.retrieve({
+      page_id: params.jobId ?? "",
+    })) as unknown as JobResponseResults;
+
+    return {
+      title: job.properties["Job Title"].title[0].plain_text,
+      id: job.id,
+      slug: job.properties.Slug.rich_text[0].plain_text,
+      tag: job.properties.Tags.multi_select[0].name,
+    };
+  } catch (error) {
+    throw new Error("Failed to load data");
+  }
+};
+
 export default function JobApply() {
+  const job = useLoaderData<JobsPageProps>();
+
   return (
-    <body className="candidates-controller new" id="new-707549">
-      <div className="header-component component" id="section-112287">
-        <div
-          className="header-cover-image white-left-logo"
-          style={{
-            backgroundImage:
-              "url(https://d27i7n2isjbnbi.cloudfront.net/careers/photos/102248/normal_photo_1551198210.jpg)",
-          }}
-        >
-          <div
-            className="overlay"
-            style={{ backgroundColor: "#222933", opacity: 0 }}
-          ></div>
-        </div>
-
-        <div className="white-left-logo">
-          <nav className="navbar navbar-default" role="navigation">
-            <div className="container">
-              <h1 className="brand">
-                <a href="https://brew.recruitee.com/">
-                  <img
-                    title="Backend Engineer (Node, .Net Core) (remote or in-office) - Brew Interactive"
-                    alt="Backend Engineer (Node, .Net Core) (remote or in-office) - Brew Interactive"
-                    src="./Backend Engineer (Node, .Net Core) (remote or in-office) - Brew Interactive_files/thumb_photo_1652974157.png"
-                  />
-                </a>
-              </h1>
-              <div className="pull-right buttons-wrap">
-                <div className="hidden-xs hidden-sm buttons-wrap">
-                  <a
-                    className="company-link btn btn-primary hidden-xs"
-                    target="_blank"
-                    rel="nofollow noopener noreferrer"
-                    href="https://brewww.com/"
-                  >
-                    Company website
-                    <i className="fa fa-arrow-circle-right"></i>
-                  </a>
-
-                  <ul className="nav navbar-nav socials hidden-xs navbar-right">
-                    <li>
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://www.linkedin.com/company/brew-interactive/"
-                      >
-                        <i className="fa fa-linkedin-square"></i>
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="http://twitter.com/brewinteractive"
-                      >
-                        <i className="fa fa-twitter-square"></i>
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://instagram.com/brew_interactive"
-                      >
-                        <i className="fa fa-instagram"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <button
-                className="navbar-toggle"
-                data-target="#navbar-collapse"
-                data-toggle="collapse"
-                type="button"
-              >
-                <span className="sr-only">Toggle navigation</span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
-              </button>
-
-              <div className="collapse navbar-collapse" id="navbar-collapse">
-                <ul className="menu nav navbar-nav">
-                  <li>
-                    <a href="https://brew.recruitee.com/">Home</a>
-                  </li>
-
-                  <li>
-                    <a href="https://brew.recruitee.com/#section-112289">
-                      Jobs
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </nav>
-          <div className="content container">
-            <div className="info-container">
-              <div className="info">
-                <h2>
-                  Backend Engineer (Node, .Net Core) (remote or in-office)
-                </h2>
-                <ul>
-                  <li>
-                    <i className="ion ion-ios-people"></i>
-                    Development
-                  </li>
-
-                  <li>
-                    <i className="ion ion-location"></i>
-                    Remote job
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="breadcrumbs">
-          <div className="container">
-            <ul>
-              <li>
-                <a href="https://brew.recruitee.com/">Job openings</a>
-              </li>
-              <li>
-                <a href="https://brew.recruitee.com/o/backend-engineer-node-net-core-remote-or-inoffice">
-                  Backend Engineer (Node, .Net Core) (remote or in-office)
-                </a>
-              </li>
-
-              <li>
-                <a
-                  className="active"
-                  href="https://brew.recruitee.com/o/backend-engineer-node-net-core-remote-or-inoffice/c/new"
-                >
-                  Application form
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="spacing"></div>
-      </div>
-
+    <React.Fragment>
+      <Header info={<HeaderInfoJobDetail title={job.title} tag={job.tag} />} />
       <section>
         <div className="apply-form-component">
           <div className="container">
@@ -155,7 +41,7 @@ export default function JobApply() {
               className="simple_form new_candidate"
               id="new_candidate"
               encType="multipart/form-data"
-              action="https://brew.recruitee.com/o/backend-engineer-node-net-core-remote-or-inoffice/c"
+              action={`/${job.slug}/${job.id}`}
               accept-charset="UTF-8"
               method="post"
             >
@@ -765,7 +651,9 @@ export default function JobApply() {
                         </strong>
                       </p>
                       <p>
-                        <a href="mailto:info@brewww.com">info@brewww.com</a>
+                        <a href={`mailto:${process.env.COMPANY_WEBSITE_EMAIL}`}>
+                          {process.env.COMPANY_WEBSITE_EMAIL}
+                        </a>
                       </p>
                       <p>
                         The subject section will include the phrase "
@@ -951,25 +839,6 @@ export default function JobApply() {
 
       <script>LinkedInApply.maybeFillForm();</script>
 
-      <footer className="container">
-        <a
-          target="_blank"
-          className="footer-logo"
-          rel="noopener noreferrer"
-          href="https://recruitee.com/"
-        >
-          <span>
-            <span
-              className="translation_missing"
-              title="translation missing: en.careers.common.hiring_with"
-            >
-              Hiring With
-            </span>
-          </span>
-          <img src="./Backend Engineer (Node, .Net Core) (remote or in-office) - Brew Interactive_files/logo__horizontal-95300540fb91da99f96dab9a76748ac00a0b39a5f02d432d373259194112dabb.svg" />
-        </a>
-      </footer>
-
       <div
         id="lightboxOverlay"
         className="lightboxOverlay"
@@ -983,14 +852,8 @@ export default function JobApply() {
               src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
             />
             <div className="lb-nav">
-              <a
-                className="lb-prev"
-                href="https://brew.recruitee.com/o/backend-engineer-node-net-core-remote-or-inoffice/c/new"
-              ></a>
-              <a
-                className="lb-next"
-                href="https://brew.recruitee.com/o/backend-engineer-node-net-core-remote-or-inoffice/c/new"
-              ></a>
+              <a className="lb-prev" href={`/${job.slug}/${job.id}/new`}></a>
+              <a className="lb-next" href={`/${job.slug}/${job.id}/new`}></a>
             </div>
             <div className="lb-loader">
               <a className="lb-cancel"></a>
@@ -1009,6 +872,6 @@ export default function JobApply() {
           </div>
         </div>
       </div>
-    </body>
+    </React.Fragment>
   );
 }

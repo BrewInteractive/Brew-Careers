@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-
-import { Annotation } from "./createStyleString.types";
+import type { Annotation } from "./createStyleString.types";
 
 function createStyleString(annotations: Annotation): React.CSSProperties {
   const styleProperties: React.CSSProperties = {};

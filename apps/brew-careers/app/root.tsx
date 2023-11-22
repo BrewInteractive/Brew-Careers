@@ -2,6 +2,8 @@ import { type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { LiveReload, Meta, Outlet, ScrollRestoration } from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
+import Header from "./components/header/header";
+import React from "react";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
@@ -9,10 +11,10 @@ export const links: LinksFunction = () => [
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Careers - Jobs - Brew Interactive" },
+    { title: `Careers - Jobs - ${process.env.COMPANY}` },
     {
       name: "description",
-      content: "Careers - Jobs - Brew Interactive",
+      content: `Careers - Jobs - ${process.env.COMPANY}`,
     },
   ];
 };
@@ -27,22 +29,25 @@ export default function App() {
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
         <meta
-          content="Careers - Jobs - Brew Interactive"
+          content={`Careers - Jobs - ${process.env.COMPANY}`}
           itemProp="description"
         />
         <meta content="summary_large_image" name="twitter:card" />
-        <meta content="Careers - Jobs - Brew Interactive" property="og:title" />
         <meta
-          content="Careers - Jobs - Brew Interactive"
+          content={`Careers - Jobs - ${process.env.COMPANY}`}
+          property="og:title"
+        />
+        <meta
+          content={`Careers - Jobs - ${process.env.COMPANY}`}
           property="og:description"
         />
         <meta content="/images/share_image.png" property="og:image" />
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
-        <meta content="https://jobs.brewww.com/" property="og:url" />
-        <meta content="Brew Interactive" property="og:site_name" />
+        <meta content={process.env.WEBSITE_URL} property="og:url" />
+        <meta content={process.env.COMPANY} property="og:site_name" />
         <meta content="website" property="og:type" />
-        <link href="https://jobs.brewww.com/" rel="canonical" />
+        <link href={process.env.WEBSITE_URL} rel="canonical" />
         <meta name="csrf-param" content="authenticity_token" />
         <meta
           name="csrf-token"
@@ -73,7 +78,6 @@ export default function App() {
         />
         <script src="/js/rt_app-b25d8d9fbffd0631b15547f64ee76931f266926fea014685d7118fe209ad476e.js"></script>
         <script src="/js/careers-ccdcff3ffcc048d61156e89009d5b48a8f4fd7b63e71740419c7d07494229d4f.js"></script>
-
         <script src="/js/errors_handler-18c907b27701ecba3737f74ec2d352eff7ccdedb59a3f25752ed3f84d9801c7c.js"></script>
       </head>
       <body>
