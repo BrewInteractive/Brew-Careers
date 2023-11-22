@@ -1,7 +1,7 @@
 import type { Block, RichText } from "./notionBlocksToHtml.types";
 
 import React from "react";
-import createStyleString from "../createStyleString/createStyleString";
+import notionAnnotationToCssProperties from "../notionAnnotationToCssProperties/notionAnnotationToCssProperties";
 
 const types: { [key: string]: string } = {
   heading_1: "h2",
@@ -31,7 +31,7 @@ function createHtmlElement(block: Block): React.ReactNode {
         <div
           key={index}
           style={{
-            ...createStyleString(text.annotations),
+            ...notionAnnotationToCssProperties(text.annotations),
             ...{
               display: "inline",
             },

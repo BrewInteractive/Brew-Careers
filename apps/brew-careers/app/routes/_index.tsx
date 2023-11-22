@@ -111,7 +111,7 @@ export default function Home() {
           <div
             className="perks-background-image"
             style={{
-              backgroundImage: "url(/images/normal_photo_1551257038.jpg)",
+              backgroundImage: "url(/images/benefits.jpg)",
               backgroundColor: "white",
             }}
           >
@@ -187,7 +187,7 @@ export default function Home() {
                     <div className="photo col-md-2">
                       <img
                         className="img-rounded"
-                        src="images/BREW_INTERACTIVE__2023_Certification_Badge.png"
+                        src="images/CertificationBadge.png"
                       />
                     </div>
                     <div className="body col-md-10">

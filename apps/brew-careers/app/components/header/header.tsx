@@ -6,7 +6,7 @@ const Header = ({ info }: IHeader) => {
       <div
         className="header-cover-image white-left-logo"
         style={{
-          backgroundImage: "url(/images/normal_photo_1551198210.jpg)",
+          backgroundImage: "url(/images/banner.jpg)",
         }}
       >
         <div
@@ -23,7 +23,7 @@ const Header = ({ info }: IHeader) => {
                 <img
                   title={`Careers - Jobs - ${process.env.COMPANY}`}
                   alt={`Careers - Jobs - ${process.env.COMPANY}`}
-                  src="/images/thumb_photo_1652974157.png"
+                  src="/images/logo.png"
                 />
               </a>
             </h1>

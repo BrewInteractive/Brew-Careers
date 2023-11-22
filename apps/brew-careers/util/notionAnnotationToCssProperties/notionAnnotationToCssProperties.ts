@@ -1,6 +1,8 @@
-import type { Annotation } from "./createStyleString.types";
+import type { Annotation } from "./notionAnnotationToCssProperties.types";
 
-function createStyleString(annotations: Annotation): React.CSSProperties {
+function notionAnnotationToCssProperties(
+  annotations: Annotation
+): React.CSSProperties {
   const styleProperties: React.CSSProperties = {};
   if (annotations.bold) styleProperties["fontWeight"] = "bold";
   if (annotations.italic) styleProperties["fontStyle"] = "italic";
@@ -13,4 +15,4 @@ function createStyleString(annotations: Annotation): React.CSSProperties {
   return styleProperties;
 }
 
-export default createStyleString;
+export default notionAnnotationToCssProperties;

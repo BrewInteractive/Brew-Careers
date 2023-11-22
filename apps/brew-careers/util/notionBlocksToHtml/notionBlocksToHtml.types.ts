@@ -1,4 +1,4 @@
-import type { Annotation } from "util/createStyleString/createStyleString.types";
+import type { Annotation } from "util/notionAnnotationToCssProperties/notionAnnotationToCssProperties.types";
 
 export interface Block {
   object: string;

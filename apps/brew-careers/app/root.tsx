@@ -2,8 +2,6 @@ import { type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { LiveReload, Meta, Outlet, ScrollRestoration } from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
-import Header from "./components/header/header";
-import React from "react";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
@@ -54,16 +52,8 @@ export default function App() {
           content="OC2keB7HgSd3CLO3oh+pE5wPm6KXcOGD6x/R4ey0QRqKXEAjBCSY9lWsKcGzR7Bq15gzmXBK4EgyfEfceDpWag=="
         />
 
-        <link
-          rel="shortcut icon"
-          type="image/x-icon"
-          href="favicon-4c9bc445d00feebd8833a9dc049e02742732854c8e58a199d3b2c3f9037d42c8.ico"
-        />
-        <link
-          rel="stylesheet"
-          media="screen"
-          href="/css/careers-e3bd8e42fc609055a4f737777f8c5d912a700894765301a04d71fabebf7dd5fa.css"
-        />
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="stylesheet" media="screen" href="/css/careers.css" />
         <link
           rel="stylesheet"
           media="screen"
@@ -73,12 +63,12 @@ export default function App() {
         <link
           rel="stylesheet"
           media="screen"
-          href="/css/style_1652974541.css"
+          href="/css/bootstrap.css"
           data-company-css="true"
         />
-        <script src="/js/rt_app-b25d8d9fbffd0631b15547f64ee76931f266926fea014685d7118fe209ad476e.js"></script>
-        <script src="/js/careers-ccdcff3ffcc048d61156e89009d5b48a8f4fd7b63e71740419c7d07494229d4f.js"></script>
-        <script src="/js/errors_handler-18c907b27701ecba3737f74ec2d352eff7ccdedb59a3f25752ed3f84d9801c7c.js"></script>
+        <script src="/js/rt_app.js"></script>
+        <script src="/js/careers.js"></script>
+        <script src="/js/errors_handler.js"></script>
       </head>
       <body>
         <Outlet />
