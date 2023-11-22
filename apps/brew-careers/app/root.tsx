@@ -1,4 +1,4 @@
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { LiveReload, Meta, Outlet, ScrollRestoration } from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
@@ -23,7 +23,7 @@ export default function App() {
       <head>
         <Meta />
         <meta charSet="utf-8" />
-        <meta content="IE=Edge,chrome=1" http-equiv="X-UA-Compatible" />
+        <meta content="IE=Edge,chrome=1" httpEquiv="X-UA-Compatible" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
         <meta

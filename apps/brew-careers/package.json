@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev --manual",
+    "dev": "PORT=3050 remix dev --manual",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@notionhq/client": "2.2.13",
     "@remix-run/css-bundle": "2.2.0",
     "@remix-run/node": "2.2.0",
     "@remix-run/react": "2.2.0",

@@ -1,21 +1,25 @@
-// import { LoaderFunction } from "@remix-run/node";
-// import { useLoaderData } from "@remix-run/react";
+import { Client } from "@notionhq/client";
+import type { LoaderFunction } from "@remix-run/node";
+import createPage from "util/createHtmlElement/createHtmlElement";
+import { useLoaderData } from "@remix-run/react";
 
-// export let loader: LoaderFunction = async ({ params }) => {
-// try {
-//   const { jobSlug } = params;
-//   const response = await fetch(
-//     `https://jsonplaceholder.typicode.com/todos/${jobSlug}`
-//   );
-//   const data = await response.json();
-//   return data;
-// } catch (error) {
-//   throw new Error("Failed to load data");
-// }
-// };
+export let loader: LoaderFunction = async ({ params }) => {
+  try {
+    const notion = new Client({ auth: process.env.NOTION_API_KEY });
+
+    const response = await notion.blocks.children.list({
+      block_id: params.jobId ?? "",
+      page_size: 100,
+    });
+
+    return response;
+  } catch (error) {
+    throw new Error("Failed to load data");
+  }
+};
 
 export default function BusinessAnalyst() {
-  // const data = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
 
   return (
     <body className="offers-controller show" id="show-1104965">
@@ -162,105 +166,7 @@ export default function BusinessAnalyst() {
             <div className="row">
               <div className="col-md-9 content">
                 <h2 className="title">Business Analyst</h2>
-                <h3 className="alted">Job description</h3>
-                <div className="description">
-                  <p>
-                    As a Business Analyst, you will work alongside our team of
-                    talented and dynamic experts as they work to provide
-                    exceptional solutions to the many challenges our business
-                    and clients face. We enable you to use your inquisitive
-                    nature, and business acumen to be a crucial part of the
-                    technical and commercial success of the business.
-                  </p>
-                  <p>
-                    <br />
-                  </p>
-                  <div>
-                    <div>
-                      <strong>Main responsibilities</strong>
-                    </div>
-                  </div>
-                  <ul>
-                    <li>
-                      Develop user stories based on business and systems
-                      requirements, as well as define and elaborate user stories
-                      with validation and acceptable criteria
-                    </li>
-                    <li>
-                      Ensure effective communication of any change to affected
-                      teams and to the wider business as appropriate
-                    </li>
-                    <li>
-                      Participate in brainstorming sessions and contribute with
-                      ideas to our technology, algorithms, and products
-                    </li>
-                    <li>Identify and form hypotheses and testing solutions</li>
-                    <li>
-                      Contribute to estimates of work and time required to
-                      complete projects and features
-                    </li>
-                    <li>
-                      Ensure the requirements are specified in a manner suitable
-                      for the intended audience and are understandable,
-                      unambiguous, and capable of being implemented and tested
-                    </li>
-                    <li>
-                      Create and deliver continuous updates and revisions as
-                      appropriate to meet changing needs and requirements
-                    </li>
-                  </ul>
-                </div>
-                <h3 className="alted">Job requirements</h3>
-                <div className="description">
-                  <p>
-                    <strong>You have:</strong>
-                    <strong>
-                      <br />
-                    </strong>
-                  </p>
-                  <ul>
-                    <li>
-                      BS degree in computer, software or
-                      industrial&nbsp;engineering, or a relevant professional
-                      experience.&nbsp;
-                    </li>
-                    <li>
-                      A minimum of 4 years of work experience
-                      in&nbsp;information technologies.
-                    </li>
-                    <li>Strong command of Agile</li>
-                    <li>
-                      Sound experience in project management and&nbsp;proficient
-                      with writing user stories
-                    </li>
-                    <li>
-                      Familiarity with developing&nbsp;project documentation
-                    </li>
-                    <li>
-                      Understanding of domain-independent business requirements
-                    </li>
-                    <li>Experience with stakeholder management</li>
-                    <li>Understanding of software development life-cycle</li>
-                  </ul>
-                  <p>
-                    <strong>Nice to haves and soft skills;</strong>
-                    <br />
-                  </p>
-                  <ul>
-                    <li>Strong interpersonal skills</li>
-                    <li>
-                      Ability to think analytically and apply problem-solving
-                      skills to scenarios throughout the course of the working
-                      day
-                    </li>
-                    <li>Demonstrated track record as a team player</li>
-                    <li>
-                      Proven ability to effectively manage timelines and
-                      deliverables
-                    </li>
-                    <li>Meeting deadlines and strong attention to detail</li>
-                  </ul>
-                </div>
+                <div>{createPage(data.results)}</div>
                 <div className="apply hidden-xs hidden-sm">
                   <a
                     className="btn btn-lg btn-primary"

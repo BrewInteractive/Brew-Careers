@@ -1,4 +1,55 @@
+import { Client } from "@notionhq/client";
+import { type LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+
+interface DataBaseQueryResponse {
+  results: Results[];
+}
+interface Results {
+  properties: ResultsProperties;
+  id: string;
+}
+interface ResultsProperties {
+  Tags: TagsProperties;
+  Slug: SlugProperties;
+  "Job Title": JobProperties;
+}
+interface TagsProperties {
+  multi_select: [{ name: string }];
+}
+interface SlugProperties {
+  rich_text: [{ plain_text: string }];
+}
+interface JobProperties {
+  title: [{ plain_text: string }];
+}
+
+export let loader: LoaderFunction = async () => {
+  try {
+    console.log("process.env.NOTION_API_KEY", process.env.NOTION_API_KEY);
+
+    const notion = new Client({ auth: process.env.NOTION_API_KEY });
+
+    const response = (await notion.databases.query({
+      database_id: process.env.DATABASE_ID ?? "",
+    })) as unknown as DataBaseQueryResponse;
+
+    return response.results.map((job) => {
+      return {
+        tagName: job.properties.Tags.multi_select[0].name,
+        jobId: job.id,
+        plainText: job.properties.Slug.rich_text[0].plain_text,
+        jobTitle: job.properties["Job Title"].title[0].plain_text,
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-unused-expressions
+    });
+  } catch (error) {
+    throw new Error("Failed to load data");
+  }
+};
+
 export default function Home() {
+  const data = useLoaderData<typeof loader>();
   return (
     <body className="offers-controller index" id="index">
       <div id="components-container">
@@ -146,149 +197,33 @@ export default function Home() {
                 <div className="filters-container"></div>
                 <div className="clearfix"></div>
                 <div className="list-container list">
-                  <div className="job" id="job-1104965">
-                    <div className="row">
-                      <div className="col-md-8 col-xs-12 col-centered">
-                        <h5 className="job-title">
-                          <a href="/business-analyst">Business Analyst</a>
-                        </h5>
+                  {data.map((job: any, index: any) => (
+                    <div className="job" id="job-1104965" key={`job-${index}`}>
+                      <div className="row">
+                        <div className="col-md-8 col-xs-12 col-centered">
+                          <h5 className="job-title">
+                            <a href={`/${job.plainText}/${job.jobId}`}>
+                              {job.jobTitle}
+                            </a>
+                          </h5>
 
-                        <div className="department">Product</div>
-
-                        <ul className="meta">
-                          <li className="job-location">Remote job</li>
-                        </ul>
-                      </div>
-                      <div className="col-md-4 col-xs-12 apply-now col-centered">
-                        <a className="btn btn-primary" href="/business-analyst">
-                          View job
-                        </a>
-                      </div>
-
-                      <div className="job-data hidden">
-                        <div className="language">["en"]</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="job" id="job-432284">
-                    <div className="row">
-                      <div className="col-md-8 col-xs-12 col-centered">
-                        <h5 className="job-title">
-                          <a href="/internship-at-brew">Internship at Brew</a>
-                        </h5>
-
-                        <div className="department">Development</div>
-
-                        <ul className="meta">
-                          <li className="job-location">Remote job</li>
-                        </ul>
-                      </div>
-                      <div className="col-md-4 col-xs-12 apply-now col-centered">
-                        <a
-                          className="btn btn-primary"
-                          href="/internship-at-brew"
-                        >
-                          View job
-                        </a>
-                      </div>
-
-                      <div className="job-data hidden">
-                        <div className="language">["en"]</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="job" id="job-585173">
-                    <div className="row">
-                      <div className="col-md-8 col-xs-12 col-centered">
-                        <h5 className="job-title">
-                          <a href="/uxui-designer-remote-or-inoffice">
-                            UX/UI Designer (remote or in-office)
+                          <div className="department">{job.tagName}</div>
+                        </div>
+                        <div className="col-md-4 col-xs-12 apply-now col-centered">
+                          <a
+                            className="btn btn-primary"
+                            href={`/${job.plainText}/${job.jobId}`}
+                          >
+                            View job
                           </a>
-                        </h5>
+                        </div>
 
-                        <div className="department">Product</div>
-
-                        <ul className="meta">
-                          <li className="job-location">Remote job</li>
-                        </ul>
-                      </div>
-                      <div className="col-md-4 col-xs-12 apply-now col-centered">
-                        <a
-                          className="btn btn-primary"
-                          href="/uxui-designer-remote-or-inoffice"
-                        >
-                          View job
-                        </a>
-                      </div>
-
-                      <div className="job-data hidden">
-                        <div className="language">["en"]</div>
+                        <div className="job-data hidden">
+                          <div className="language">["en"]</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="job" id="job-707549">
-                    <div className="row">
-                      <div className="col-md-8 col-xs-12 col-centered">
-                        <h5 className="job-title">
-                          <a href="/backend-engineer-node-net-core-remote-or-inoffice">
-                            Backend Engineer (Node, .Net Core) (remote or
-                            in-office)
-                          </a>
-                        </h5>
-
-                        <div className="department">Development</div>
-
-                        <ul className="meta">
-                          <li className="job-location">Remote job</li>
-                        </ul>
-                      </div>
-                      <div className="col-md-4 col-xs-12 apply-now col-centered">
-                        <a
-                          className="btn btn-primary"
-                          href="/backend-engineer-node-net-core-remote-or-inoffice"
-                        >
-                          View job
-                        </a>
-                      </div>
-
-                      <div className="job-data hidden">
-                        <div className="language">["en"]</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="job" id="job-264299">
-                    <div className="row">
-                      <div className="col-md-8 col-xs-12 col-centered">
-                        <h5 className="job-title">
-                          <a href="/frontend-engineer-remote-or-inoffice">
-                            Frontend Engineer (remote or in-office)
-                          </a>
-                        </h5>
-
-                        <div className="department">Development</div>
-
-                        <ul className="meta">
-                          <li className="job-location">Remote job</li>
-                        </ul>
-                      </div>
-                      <div className="col-md-4 col-xs-12 apply-now col-centered">
-                        <a
-                          className="btn btn-primary"
-                          href="/frontend-engineer-remote-or-inoffice"
-                        >
-                          View job
-                        </a>
-                      </div>
-
-                      <div className="job-data hidden">
-                        <div className="language">["en"]</div>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 <div className="empty-state hidden">
