@@ -4,30 +4,21 @@ import { Block, RichText } from "./createHtmlElement.types";
 import React from "react";
 import createStyleString from "../createStyleString/createStyleString";
 
-function createHtmlElement(block: Block): React.ReactNode {
-  let elementType: string;
-  let content: React.ReactNode[] = [];
+const types: { [key: string]: string } = {
+  heading_1: "h2",
+  heading_2: "h3",
+  heading_3: "h4",
+  paragraph: "div",
+  bulleted_list_item: "li",
+};
 
-  switch (block.type) {
-    case "heading_1":
-      elementType = "h2";
-      break;
-    case "heading_2":
-      elementType = "h3";
-      break;
-    case "heading_3":
-      elementType = "h4";
-      break;
-    case "paragraph":
-      elementType = "div";
-      break;
-    case "bulleted_list_item":
-      elementType = "li";
-      break;
-    default:
-      // Handle other types if needed
-      elementType = "div";
+function createHtmlElement(block: Block): React.ReactNode {
+  let elementType = types[block.type];
+  if (!elementType) {
+    elementType = "div";
   }
+
+  let content: React.ReactNode[] = [];
 
   if (block[block.type] && block[block.type].rich_text.length < 1) {
     content.push(<div style={{ height: "40px" }}></div>);
