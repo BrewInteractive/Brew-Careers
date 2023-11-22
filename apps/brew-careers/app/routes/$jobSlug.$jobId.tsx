@@ -1,21 +1,21 @@
-import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+// import { LoaderFunction } from "@remix-run/node";
+// import { useLoaderData } from "@remix-run/react";
 
-export let loader: LoaderFunction = async ({ params }) => {
-  // try {
-  //   const { jobSlug } = params;
-  //   const response = await fetch(
-  //     `https://jsonplaceholder.typicode.com/todos/${jobSlug}`
-  //   );
-  //   const data = await response.json();
-  //   return data;
-  // } catch (error) {
-  //   throw new Error("Failed to load data");
-  // }
-};
+// export let loader: LoaderFunction = async ({ params }) => {
+//   // try {
+//   //   const { jobSlug } = params;
+//   //   const response = await fetch(
+//   //     `https://jsonplaceholder.typicode.com/todos/${jobSlug}`
+//   //   );
+//   //   const data = await response.json();
+//   //   return data;
+//   // } catch (error) {
+//   //   throw new Error("Failed to load data");
+//   // }
+// };
 
 export default function BusinessAnalyst() {
-  const data = useLoaderData<typeof loader>();
+  // const data = useLoaderData<typeof loader>();
 
   return (
     <body className="offers-controller show" id="show-1104965">
