@@ -2,7 +2,6 @@
 import { Client } from "@notionhq/client";
 import { type LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import React from "react";
 import Header from "~/components/header/header";
 import HeaderInfoHome from "~/components/headerInfoHome/headerInfoHome";
 import type { JobsPageProps, JobsResponse } from "~/lib/interfaces/job";

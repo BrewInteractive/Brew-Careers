@@ -1,11 +1,21 @@
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 
 import { Client } from "@notionhq/client";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
-import type { LoaderFunction } from "@remix-run/node";
 import React from "react";
 import { useLoaderData } from "@remix-run/react";
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `${data.job.title}- ${process.env.COMPANY}` },
+    {
+      name: "description",
+      content: `${data.job.title}- ${process.env.COMPANY} - Apply for this job`,
+    },
+  ];
+};
 
 export let loader: LoaderFunction = async ({
   params,

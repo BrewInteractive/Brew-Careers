@@ -2,6 +2,7 @@ import type {
   JobContentResponse,
   JobDetailProps,
 } from "~/lib/interfaces/job.detail";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable jsx-a11y/anchor-is-valid */
@@ -9,10 +10,19 @@ import { Client } from "@notionhq/client";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import type { JobResponseResults } from "~/lib/interfaces/job";
-import type { LoaderFunction } from "@remix-run/node";
 import React from "react";
 import notionBlocksToHtml from "util/notionBlocksToHtml/notionBlocksToHtml";
 import { useLoaderData } from "@remix-run/react";
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `${data.job.title}- ${process.env.COMPANY}` },
+    {
+      name: "description",
+      content: `${data.job.title}- ${process.env.COMPANY}`,
+    },
+  ];
+};
 
 export let loader: LoaderFunction = async ({
   params,
