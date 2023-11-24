@@ -1,18 +1,25 @@
+import type {
+  ActionFunctionArgs,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { useActionData, useLoaderData } from "@remix-run/react";
 
 import { Client } from "@notionhq/client";
+import type { FormData } from "util/validation";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import React from "react";
-import { useLoaderData } from "@remix-run/react";
+import { redirect } from "@remix-run/node";
+import validateForm from "util/validation";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
-    { title: `${data.job.title}- ${process.env.COMPANY}` },
+    { title: `${data.title}- ${process.env.COMPANY}` },
     {
       name: "description",
-      content: `${data.job.title}- ${process.env.COMPANY} - Apply for this job`,
+      content: `${data.title}- ${process.env.COMPANY} - Apply for this job`,
     },
   ];
 };
@@ -38,8 +45,137 @@ export let loader: LoaderFunction = async ({
   }
 };
 
+export async function action({ request, params }: ActionFunctionArgs) {
+  const formData = await request.formData();
+
+  const sendValidationData: FormData = {
+    name: String(formData.get("name")),
+    email: String(formData.get("email")),
+    birthYear: String(formData.get("birthYear")),
+    city: String(formData.get("city")),
+    cv: formData.get("cv") as File,
+    phone: String(formData.get("phone")),
+  };
+
+  const errors = await validateForm(sendValidationData);
+
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  } else {
+    const notion = new Client({ auth: process.env.NOTION_API_KEY });
+
+    (async () => {
+      const response = await notion.pages.create({
+        parent: {
+          page_id: params.jobId ?? "",
+          database_id: process.env.DATABASE_ID,
+        },
+        properties: {
+          Name: {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("name")),
+                },
+              },
+            ],
+          },
+          Email: {
+            email: String(formData.get("email")),
+          },
+          Phone: {
+            phone_number: String(formData.get("phone")),
+          },
+          CV: {},
+          "Cover letter": {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("coverLetter")),
+                },
+              },
+            ],
+          },
+          "Year of birth": {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("birthYear")),
+                },
+              },
+            ],
+          },
+          "City of residence": {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("city")),
+                },
+              },
+            ],
+          },
+          "GitHub profile": {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("github")),
+                },
+              },
+            ],
+          },
+          "BitBucket profile": {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("bitbucket")),
+                },
+              },
+            ],
+          },
+          "StackOverflow profile": {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("stackOverflow")),
+                },
+              },
+            ],
+          },
+          Website: {
+            title: [
+              {
+                text: {
+                  content: String(formData.get("website")),
+                },
+              },
+            ],
+          },
+          acceptDataTransferAbroad: {
+            checkbox: Boolean(formData.get("acceptDataTransferAbroad")),
+          },
+          acceptDataSharing: {
+            checkbox: Boolean(formData.get("acceptDataSharing")),
+          },
+          undertakeInformingPermits: {
+            checkbox: Boolean(formData.get("undertakeInformingPermits")),
+          },
+        },
+      });
+
+      console.log(response);
+
+      if (response) {
+        redirect(`${String(formData.get("jobSlug"))}/${params.jobId}/applied`);
+      }
+    })();
+  }
+}
+
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
+  const errors = useActionData<typeof action>();
+
+  console.log(errors);
 
   return (
     <React.Fragment>
@@ -49,28 +185,30 @@ export default function JobApply() {
           <div className="container">
             <form
               className="simple_form new_candidate"
-              id="new_candidate"
-              encType="multipart/form-data"
-              action={`/${job.slug}/${job.id}`}
-              accept-charset="UTF-8"
               method="post"
+              encType="multipart/form-data"
             >
               <input
                 type="hidden"
-                name="authenticity_token"
-                value="EK36t2HYlOGqBfCh/taP1yRSjaFCckQu8+wuA7gOI0V58R146w/ySZIcpyDDaXYbP3NfqFl75sxzQhrIbV2GzQ=="
-                autoComplete="off"
+                id="jobSlug"
+                name="jobSlug"
+                value={job.slug}
               />
+
               <section>
                 <div className="col-md-3 description">
                   <h3>My information</h3>
                   <p>Fill out the information below</p>
                 </div>
                 <div className="col-md-7">
-                  <div className="form-group string required candidate_name">
+                  <div
+                    className={`form-group string required candidate_name ${
+                      errors?.name && "has-error"
+                    }`}
+                  >
                     <label
                       className="string required control-label"
-                      htmlFor="candidate_name"
+                      htmlFor="name"
                     >
                       Full name <abbr title="required">*</abbr>
                     </label>
@@ -80,14 +218,17 @@ export default function JobApply() {
                       aria-required="true"
                       placeholder="Your full name"
                       type="text"
-                      name="candidate[name]"
-                      id="candidate_name"
+                      name="name"
                     />
                   </div>
-                  <div className="form-group email required candidate_email">
+                  <div
+                    className={`form-group email required candidate_email ${
+                      errors?.email && "has-error"
+                    }`}
+                  >
                     <label
                       className="email required control-label"
-                      htmlFor="candidate_email"
+                      htmlFor="email"
                     >
                       Email address <abbr title="required">*</abbr>
                     </label>
@@ -97,14 +238,17 @@ export default function JobApply() {
                       aria-required="true"
                       placeholder="Your email address"
                       type="email"
-                      name="candidate[email]"
-                      id="candidate_email"
+                      name="email"
                     />
                   </div>
-                  <div className="form-group tel required candidate_phone">
+                  <div
+                    className={`form-group tel required candidate_phone ${
+                      errors?.phone && "has-error"
+                    }`}
+                  >
                     <label
                       className="tel required control-label"
-                      htmlFor="candidate_phone"
+                      htmlFor="phone"
                     >
                       Phone number <abbr title="required">*</abbr>
                     </label>
@@ -112,10 +256,9 @@ export default function JobApply() {
                       className="string tel required form-control form-control"
                       required
                       aria-required="true"
-                      placeholder="Your phone number"
+                      placeholder="Example: 05555555555"
                       type="tel"
-                      name="candidate[phone]"
-                      id="candidate_phone"
+                      name="phone"
                     />
                   </div>
                 </div>
@@ -129,7 +272,11 @@ export default function JobApply() {
                   <p>Upload your CV or resume file</p>
                 </div>
                 <div className="col-md-7">
-                  <div className="form-group file_preview required candidate_cv">
+                  <div
+                    className={`form-group file_preview required candidate_cv ${
+                      errors?.cv && "has-error"
+                    }`}
+                  >
                     <div className="file-preview">
                       <div className="img-container">
                         <div className="file-type"></div>
@@ -147,8 +294,7 @@ export default function JobApply() {
                         required
                         aria-required="true"
                         type="file"
-                        name="candidate[cv]"
-                        id="candidate_cv"
+                        name="cv"
                       />
                     </div>
                     <span className="help-block">
@@ -168,8 +314,7 @@ export default function JobApply() {
                     <textarea
                       rows={5}
                       className="text optional form-control"
-                      name="candidate[cover_letter]"
-                      id="candidate_cover_letter"
+                      name="coverLetter"
                     ></textarea>
                   </div>
                 </div>
@@ -180,19 +325,15 @@ export default function JobApply() {
                   <p>Please fill in additional questions</p>
                 </div>
                 <div id="screening-questions" className="col-md-7">
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875328"
-                    name="candidate[open_question_answers_attributes][0][open_question_id]"
-                    id="candidate_open_question_answers_attributes_0_open_question_id"
-                  />
                   <div className="question string_type">
-                    <div className="form-group string required candidate_open_question_answers_content">
+                    <div
+                      className={`form-group string required candidate_open_question_answers_content ${
+                        errors?.birthYear && "has-error"
+                      }`}
+                    >
                       <label
                         className="string required control-label"
-                        htmlFor="candidate_open_question_answers_attributes_0_content"
+                        htmlFor="birthYear"
                       >
                         Year of birth <abbr title="required">*</abbr>
                       </label>
@@ -201,25 +342,20 @@ export default function JobApply() {
                         required
                         aria-required="true"
                         type="text"
-                        name="candidate[open_question_answers_attributes][0][content]"
-                        id="candidate_open_question_answers_attributes_0_content"
+                        name="birthYear"
                       />
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875329"
-                    name="candidate[open_question_answers_attributes][1][open_question_id]"
-                    id="candidate_open_question_answers_attributes_1_open_question_id"
-                  />
                   <div className="question string_type">
-                    <div className="form-group string required candidate_open_question_answers_content">
+                    <div
+                      className={`form-group string required candidate_open_question_answers_content ${
+                        errors?.city && "has-error"
+                      }`}
+                    >
                       <label
                         className="string required control-label"
-                        htmlFor="candidate_open_question_answers_attributes_1_content"
+                        htmlFor="city"
                       >
                         City of residence <abbr title="required">*</abbr>
                       </label>
@@ -228,185 +364,75 @@ export default function JobApply() {
                         required
                         aria-required="true"
                         type="text"
-                        name="candidate[open_question_answers_attributes][1][content]"
-                        id="candidate_open_question_answers_attributes_1_content"
+                        name="city"
                       />
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875330"
-                    name="candidate[open_question_answers_attributes][2][open_question_id]"
-                    id="candidate_open_question_answers_attributes_2_open_question_id"
-                  />
-                  <div className="question multi_choice_type">
-                    <div className="form-group check_boxes required candidate_open_question_answers_multi_content">
-                      <label className="check_boxes required control-label">
-                        Prefered location <abbr title="required">*</abbr>
-                      </label>
-                      <input
-                        type="hidden"
-                        name="candidate[open_question_answers_attributes][2][multi_content][]"
-                        value=""
-                        autoComplete="off"
-                        required
-                      />
-                      <span className="checkbox">
-                        <label htmlFor="candidate_open_question_answers_attributes_2_multi_content_i̇zmir-urla_in_office">
-                          <input
-                            className="check_boxes required"
-                            required
-                            aria-required="true"
-                            type="checkbox"
-                            value="İzmir-Urla (in office)"
-                            name="candidate[open_question_answers_attributes][2][multi_content][]"
-                            id="candidate_open_question_answers_attributes_2_multi_content_i̇zmir-urla_in_office"
-                          />
-                          İzmir-Urla (in office)
-                        </label>
-                      </span>
-                      <span className="checkbox">
-                        <label htmlFor="candidate_open_question_answers_attributes_2_multi_content_remote_domestic">
-                          <input
-                            className="check_boxes required"
-                            required
-                            aria-required="true"
-                            type="checkbox"
-                            value="Remote (domestic)"
-                            name="candidate[open_question_answers_attributes][2][multi_content][]"
-                            id="candidate_open_question_answers_attributes_2_multi_content_remote_domestic"
-                          />
-                          Remote (domestic)
-                        </label>
-                      </span>
-                      <span className="checkbox">
-                        <label htmlFor="candidate_open_question_answers_attributes_2_multi_content_remote_international_within_-33_hours_to_eest">
-                          <input
-                            className="check_boxes required"
-                            required
-                            aria-required="true"
-                            type="checkbox"
-                            value="Remote (international within -3/+3 hours to EEST)"
-                            name="candidate[open_question_answers_attributes][2][multi_content][]"
-                            id="candidate_open_question_answers_attributes_2_multi_content_remote_international_within_-33_hours_to_eest"
-                          />
-                          Remote (international within -3/+3 hours to EEST)
-                        </label>
-                      </span>
-                    </div>
-                  </div>
-
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875331"
-                    name="candidate[open_question_answers_attributes][3][open_question_id]"
-                    id="candidate_open_question_answers_attributes_3_open_question_id"
-                  />
                   <div className="question string_type">
                     <div className="form-group string optional candidate_open_question_answers_content">
                       <label
                         className="string optional control-label"
-                        htmlFor="candidate_open_question_answers_attributes_3_content"
+                        htmlFor="github"
                       >
                         GitHub profile
                       </label>
                       <input
                         className="string optional form-control"
                         type="text"
-                        name="candidate[open_question_answers_attributes][3][content]"
-                        id="candidate_open_question_answers_attributes_3_content"
+                        name="github"
                       />
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875332"
-                    name="candidate[open_question_answers_attributes][4][open_question_id]"
-                    id="candidate_open_question_answers_attributes_4_open_question_id"
-                  />
                   <div className="question string_type">
                     <div className="form-group string optional candidate_open_question_answers_content">
                       <label
                         className="string optional control-label"
-                        htmlFor="candidate_open_question_answers_attributes_4_content"
+                        htmlFor="bitbucket"
                       >
                         BitBucket profile
                       </label>
                       <input
                         className="string optional form-control"
                         type="text"
-                        name="candidate[open_question_answers_attributes][4][content]"
-                        id="candidate_open_question_answers_attributes_4_content"
+                        name="bitbucket"
                       />
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875333"
-                    name="candidate[open_question_answers_attributes][5][open_question_id]"
-                    id="candidate_open_question_answers_attributes_5_open_question_id"
-                  />
                   <div className="question string_type">
                     <div className="form-group string optional candidate_open_question_answers_content">
                       <label
                         className="string optional control-label"
-                        htmlFor="candidate_open_question_answers_attributes_5_content"
+                        htmlFor="stackOverflow"
                       >
                         StackOverflow profile
                       </label>
                       <input
                         className="string optional form-control"
                         type="text"
-                        name="candidate[open_question_answers_attributes][5][content]"
-                        id="candidate_open_question_answers_attributes_5_content"
+                        name="stackOverflow"
                       />
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875334"
-                    name="candidate[open_question_answers_attributes][6][open_question_id]"
-                    id="candidate_open_question_answers_attributes_6_open_question_id"
-                  />
                   <div className="question string_type">
                     <div className="form-group string optional candidate_open_question_answers_content">
                       <label
                         className="string optional control-label"
-                        htmlFor="candidate_open_question_answers_attributes_6_content"
+                        htmlFor="website"
                       >
                         Website
                       </label>
                       <input
                         className="string optional form-control"
                         type="text"
-                        name="candidate[open_question_answers_attributes][6][content]"
-                        id="candidate_open_question_answers_attributes_6_content"
+                        name="website"
                       />
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875397"
-                    name="candidate[open_question_answers_attributes][7][open_question_id]"
-                    id="candidate_open_question_answers_attributes_7_open_question_id"
-                  />
                   <div className="question infobox_type">
                     <div className="alert alert-info rt-screening-question-infobox">
                       <p>
@@ -690,32 +716,18 @@ export default function JobApply() {
               </section>
               <section>
                 <div id="legal-questions" className="col-md-offset-3 col-md-7">
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875398"
-                    name="candidate[open_question_answers_attributes][8][open_question_id]"
-                    id="candidate_open_question_answers_attributes_8_open_question_id"
-                  />
                   <div className="question legal_type">
                     <div className="form-group boolean optional candidate_open_question_answers_flag">
-                      <input
-                        value="0"
-                        autoComplete="off"
-                        type="hidden"
-                        name="candidate[open_question_answers_attributes][8][flag]"
-                      />
                       <label
                         className="boolean optional control-label checkbox"
-                        htmlFor="candidate_open_question_answers_attributes_8_flag"
+                        htmlFor="acceptDataSharing"
                       >
                         <input
                           className="boolean optional"
                           type="checkbox"
                           value="1"
-                          name="candidate[open_question_answers_attributes][8][flag]"
-                          id="candidate_open_question_answers_attributes_8_flag"
+                          name="acceptDataSharing"
+                          id="acceptDataSharing"
                         />
                         <div>
                           <p>
@@ -735,32 +747,18 @@ export default function JobApply() {
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875400"
-                    name="candidate[open_question_answers_attributes][9][open_question_id]"
-                    id="candidate_open_question_answers_attributes_9_open_question_id"
-                  />
                   <div className="question legal_type">
                     <div className="form-group boolean optional candidate_open_question_answers_flag">
-                      <input
-                        value="0"
-                        autoComplete="off"
-                        type="hidden"
-                        name="candidate[open_question_answers_attributes][9][flag]"
-                      />
                       <label
                         className="boolean optional control-label checkbox"
-                        htmlFor="candidate_open_question_answers_attributes_9_flag"
+                        htmlFor="acceptDataTransferAbroad"
                       >
                         <input
                           className="boolean optional"
                           type="checkbox"
                           value="1"
-                          name="candidate[open_question_answers_attributes][9][flag]"
-                          id="candidate_open_question_answers_attributes_9_flag"
+                          name="acceptDataTransferAbroad"
+                          id="acceptDataTransferAbroad"
                         />
                         <div>
                           <p>
@@ -784,32 +782,18 @@ export default function JobApply() {
                     </div>
                   </div>
 
-                  <input
-                    className="hidden"
-                    autoComplete="off"
-                    type="hidden"
-                    value="875401"
-                    name="candidate[open_question_answers_attributes][10][open_question_id]"
-                    id="candidate_open_question_answers_attributes_10_open_question_id"
-                  />
                   <div className="question legal_type">
                     <div className="form-group boolean optional candidate_open_question_answers_flag">
-                      <input
-                        value="0"
-                        autoComplete="off"
-                        type="hidden"
-                        name="candidate[open_question_answers_attributes][10][flag]"
-                      />
                       <label
                         className="boolean optional control-label checkbox"
-                        htmlFor="candidate_open_question_answers_attributes_10_flag"
+                        htmlFor="undertakeInformingPermits"
                       >
                         <input
                           className="boolean optional"
                           type="checkbox"
                           value="1"
-                          name="candidate[open_question_answers_attributes][10][flag]"
-                          id="candidate_open_question_answers_attributes_10_flag"
+                          name="undertakeInformingPermits"
+                          id="undertakeInformingPermits"
                         />
                         <div>
                           <p>
@@ -834,13 +818,9 @@ export default function JobApply() {
                 </div>
               </section>
               <section className="closing">
-                <input
-                  type="submit"
-                  name="commit"
-                  value="Submit application"
-                  className="btn btn-lg btn-primary"
-                  data-disable-with="Submit application"
-                />
+                <button className="btn btn-lg btn-primary" type="submit">
+                  Submit application
+                </button>
               </section>
             </form>
           </div>
