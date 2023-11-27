@@ -60,114 +60,121 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const errors = await validateForm(sendValidationData);
 
   if (Object.keys(errors).length > 0) {
-    console.log({ errors });
     return errors;
   } else {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
-    (async () => {
-      const response = await notion.pages.create({
-        parent: {
-          database_id: process.env.APPLICATION_DATABASE_ID ?? "",
+    const response = await notion.pages.create({
+      parent: {
+        database_id: process.env.APPLICATION_DATABASE_ID ?? "",
+      },
+      properties: {
+        Jobs: {
+          relation: [{ id: params.jobId ?? "" }],
         },
-        properties: {
-          Jobs: {
-            relation: [{ id: params.jobId ?? "" }],
-          },
-          Name: {
-            title: [
-              {
-                text: {
-                  content: String(formData.get("name")),
-                },
+        Name: {
+          title: [
+            {
+              text: {
+                content: String(formData.get("name")),
               },
-            ],
-          },
-          Email: {
-            email: String(formData.get("email")),
-          },
-          Phone: {
-            phone_number: String(formData.get("phone")),
-          },
-          "Cover letter": {
-            rich_text: [
-              {
-                text: {
-                  content: String(formData.get("coverLetter")),
-                },
-              },
-            ],
-          },
-          "Year of birth": {
-            rich_text: [
-              {
-                text: {
-                  content: String(formData.get("birthYear")),
-                },
-              },
-            ],
-          },
-          "City of residence": {
-            rich_text: [
-              {
-                text: {
-                  content: String(formData.get("city")),
-                },
-              },
-            ],
-          },
-          "GitHub profile": {
-            rich_text: [
-              {
-                text: {
-                  content: String(formData.get("github")),
-                },
-              },
-            ],
-          },
-          "BitBucket profile": {
-            rich_text: [
-              {
-                text: {
-                  content: String(formData.get("bitbucket")),
-                },
-              },
-            ],
-          },
-          "StackOverflow profile": {
-            rich_text: [
-              {
-                text: {
-                  content: String(formData.get("stackOverflow")),
-                },
-              },
-            ],
-          },
-          Website: {
-            rich_text: [
-              {
-                text: {
-                  content: String(formData.get("website")),
-                },
-              },
-            ],
-          },
-          acceptDataTransferAbroad: {
-            checkbox: Boolean(formData.get("acceptDataTransferAbroad")),
-          },
-          acceptDataSharing: {
-            checkbox: Boolean(formData.get("acceptDataSharing")),
-          },
-          undertakeInformingPermits: {
-            checkbox: Boolean(formData.get("undertakeInformingPermits")),
-          },
+            },
+          ],
         },
-      });
+        Email: {
+          email: String(formData.get("email")),
+        },
+        Phone: {
+          phone_number: String(formData.get("phone")),
+        },
+        // CV: {
+        //   files: [
+        //     {
+        //       file: {
+        //         url: "", //
+        //       },
+        //       name: "", //
+        //     },
+        //   ],
+        // },
+        "Cover letter": {
+          rich_text: [
+            {
+              text: {
+                content: String(formData.get("coverLetter")),
+              },
+            },
+          ],
+        },
+        "Year of birth": {
+          rich_text: [
+            {
+              text: {
+                content: String(formData.get("birthYear")),
+              },
+            },
+          ],
+        },
+        "City of residence": {
+          rich_text: [
+            {
+              text: {
+                content: String(formData.get("city")),
+              },
+            },
+          ],
+        },
+        "GitHub profile": {
+          rich_text: [
+            {
+              text: {
+                content: String(formData.get("github")),
+              },
+            },
+          ],
+        },
+        "BitBucket profile": {
+          rich_text: [
+            {
+              text: {
+                content: String(formData.get("bitbucket")),
+              },
+            },
+          ],
+        },
+        "StackOverflow profile": {
+          rich_text: [
+            {
+              text: {
+                content: String(formData.get("stackOverflow")),
+              },
+            },
+          ],
+        },
+        Website: {
+          rich_text: [
+            {
+              text: {
+                content: String(formData.get("website")),
+              },
+            },
+          ],
+        },
+        acceptDataTransferAbroad: {
+          checkbox: Boolean(formData.get("acceptDataTransferAbroad")),
+        },
+        acceptDataSharing: {
+          checkbox: Boolean(formData.get("acceptDataSharing")),
+        },
+        undertakeInformingPermits: {
+          checkbox: Boolean(formData.get("undertakeInformingPermits")),
+        },
+      },
+    });
 
-      if (response.id) {
-        redirect(`${String(formData.get("jobSlug"))}/${params.jobId}/applied`);
-      }
-    })();
+    if (response.id) {
+      return redirect(`/${params.jobSlug}/${params.jobId}/applied`);
+    }
 
     return null;
   }
@@ -188,13 +195,6 @@ export default function JobApply() {
               method="post"
               encType="multipart/form-data"
             >
-              <input
-                type="hidden"
-                id="jobSlug"
-                name="jobSlug"
-                value={job.slug}
-              />
-
               <section>
                 <div className="col-md-3 description">
                   <h3>My information</h3>

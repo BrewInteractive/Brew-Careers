@@ -9,10 +9,10 @@ import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
-    { title: `${data.job.title}- ${process.env.COMPANY}` },
+    { title: `${data.title}- ${process.env.COMPANY}` },
     {
       name: "description",
-      content: `${data.job.title}- ${process.env.COMPANY} - Applied successfully`,
+      content: `${data.title}- ${process.env.COMPANY} - Applied successfully`,
     },
   ];
 };
