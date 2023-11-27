@@ -11,7 +11,7 @@ export let loader: LoaderFunction = async (): Promise<JobsPageProps[]> => {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
     const response = (await notion.databases.query({
-      database_id: process.env.DATABASE_ID ?? "",
+      database_id: process.env.JOBS_DATABASE_ID ?? "",
     })) as unknown as JobsResponse;
 
     return response.results.map((job) => {

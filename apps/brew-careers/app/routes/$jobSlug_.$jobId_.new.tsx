@@ -60,6 +60,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const errors = await validateForm(sendValidationData);
 
   if (Object.keys(errors).length > 0) {
+    console.log({ errors });
     return errors;
   } else {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -67,10 +68,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
     (async () => {
       const response = await notion.pages.create({
         parent: {
-          page_id: params.jobId ?? "",
-          database_id: process.env.DATABASE_ID,
+          database_id: process.env.APPLICATION_DATABASE_ID ?? "",
         },
         properties: {
+          Jobs: {
+            relation: [{ id: params.jobId ?? "" }],
+          },
           Name: {
             title: [
               {
@@ -86,9 +89,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           Phone: {
             phone_number: String(formData.get("phone")),
           },
-          CV: {},
           "Cover letter": {
-            title: [
+            rich_text: [
               {
                 text: {
                   content: String(formData.get("coverLetter")),
@@ -97,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             ],
           },
           "Year of birth": {
-            title: [
+            rich_text: [
               {
                 text: {
                   content: String(formData.get("birthYear")),
@@ -106,7 +108,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             ],
           },
           "City of residence": {
-            title: [
+            rich_text: [
               {
                 text: {
                   content: String(formData.get("city")),
@@ -115,7 +117,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             ],
           },
           "GitHub profile": {
-            title: [
+            rich_text: [
               {
                 text: {
                   content: String(formData.get("github")),
@@ -124,7 +126,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             ],
           },
           "BitBucket profile": {
-            title: [
+            rich_text: [
               {
                 text: {
                   content: String(formData.get("bitbucket")),
@@ -133,7 +135,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             ],
           },
           "StackOverflow profile": {
-            title: [
+            rich_text: [
               {
                 text: {
                   content: String(formData.get("stackOverflow")),
@@ -142,7 +144,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             ],
           },
           Website: {
-            title: [
+            rich_text: [
               {
                 text: {
                   content: String(formData.get("website")),
@@ -162,20 +164,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
         },
       });
 
-      console.log(response);
-
-      if (response) {
+      if (response.id) {
         redirect(`${String(formData.get("jobSlug"))}/${params.jobId}/applied`);
       }
     })();
+
+    return null;
   }
 }
 
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
   const errors = useActionData<typeof action>();
-
-  console.log(errors);
 
   return (
     <React.Fragment>
