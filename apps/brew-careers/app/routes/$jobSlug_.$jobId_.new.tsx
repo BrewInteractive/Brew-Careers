@@ -5,17 +5,18 @@ import type {
 } from "@remix-run/node";
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
 import { useActionData, useLoaderData } from "@remix-run/react";
+import validateForm, { getFileExtension } from "util/validation";
 
 import { Client } from "@notionhq/client";
 import type { FormData } from "util/validation";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
+import IUploadFileResponse from "~/lib/interfaces/uploadFileResponse";
 import React from "react";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { redirect } from "@remix-run/node";
 import { uuid } from "uuidv4";
-import validateForm from "util/validation";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -89,15 +90,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     },
   });
 
-  const uploadFileResponse = await new Upload({
+  const uploadFileResponse = (await new Upload({
     client,
     leavePartsOnError: false,
     params: {
       Bucket: "brew-careers",
-      Key: `${uuid()}-${params.jobId}`,
+      Key: `${uuid()}-${params.jobId}.${getFileExtension(
+        sendValidationData?.cv?.name ?? ""
+      )}`,
       Body: formData.get("cv") as File,
     },
-  }).done();
+  }).done()) as unknown as IUploadFileResponse;
 
   if (uploadFileResponse.$metadata.httpStatusCode === 200) {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -131,7 +134,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
               external: {
                 url: uploadFileResponse.Location,
               },
-              name: `${String(formData.get("name"))}-${params.jobSlug}`,
+              name: "CV",
             },
           ],
         },

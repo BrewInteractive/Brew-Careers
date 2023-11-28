@@ -17,7 +17,7 @@ interface Errors {
 }
 
 // Dosya uzantısını alma fonksiyonu
-function getFileExtension(filename: string): string {
+export function getFileExtension(filename: string): string {
   return filename.split(".").pop()?.toLowerCase() || "";
 }
 
