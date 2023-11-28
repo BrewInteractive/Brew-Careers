@@ -11,7 +11,10 @@ import type { FormData } from "util/validation";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import React from "react";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import { redirect } from "@remix-run/node";
+import { uuid } from "uuidv4";
 import validateForm from "util/validation";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -48,6 +51,20 @@ export let loader: LoaderFunction = async ({
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
 
+  const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_ENDPOINT } = process.env;
+
+  if (!STORAGE_ENDPOINT) {
+    throw new Error(`Storage is missing required configuration.`);
+  }
+
+  if (!STORAGE_ACCESS_KEY) {
+    throw new Error(`Storage is missing required configuration.`);
+  }
+
+  if (!STORAGE_SECRET) {
+    throw new Error(`Storage is missing required configuration.`);
+  }
+
   const sendValidationData: FormData = {
     name: String(formData.get("name")),
     email: String(formData.get("email")),
@@ -61,7 +78,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (Object.keys(errors).length > 0) {
     return errors;
-  } else {
+  }
+
+  const client = new S3Client({
+    region: "fra1",
+    endpoint: STORAGE_ENDPOINT,
+    credentials: {
+      accessKeyId: STORAGE_ACCESS_KEY,
+      secretAccessKey: STORAGE_SECRET,
+    },
+  });
+
+  const uploadFileResponse = await new Upload({
+    client,
+    leavePartsOnError: false,
+    params: {
+      Bucket: "brew-careers",
+      Key: `${uuid()}-${params.jobId}`,
+      Body: formData.get("cv") as File,
+    },
+  }).done();
+
+  if (uploadFileResponse.$metadata.httpStatusCode === 200) {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
     const response = await notion.pages.create({
@@ -87,16 +125,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         Phone: {
           phone_number: String(formData.get("phone")),
         },
-        // CV: {
-        //   files: [
-        //     {
-        //       file: {
-        //         url: "", //
-        //       },
-        //       name: "", //
-        //     },
-        //   ],
-        // },
+        CV: {
+          files: [
+            {
+              external: {
+                url: uploadFileResponse.Location,
+              },
+              name: `${String(formData.get("name"))}-${params.jobSlug}`,
+            },
+          ],
+        },
         "Cover letter": {
           rich_text: [
             {
@@ -175,9 +213,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (response.id) {
       return redirect(`/${params.jobSlug}/${params.jobId}/applied`);
     }
-
-    return null;
+  } else {
+    throw new Error(`An error has occured`);
   }
+
+  return null;
 }
 
 export default function JobApply() {
