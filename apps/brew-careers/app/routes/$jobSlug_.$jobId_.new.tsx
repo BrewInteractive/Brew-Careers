@@ -477,7 +477,10 @@ export default function JobApply() {
                   </div>
 
                   <div className="question infobox_type">
-                    <div className="alert alert-info rt-screening-question-infobox">
+                    <div
+                      className="alert alert-info rt-screening-question-infobox"
+                      style={{ height: "300px", overflowY: "auto" }}
+                    >
                       <p>
                         <strong>BREV BİLİŞİM ANONİM ŞİRKETİ </strong>
                         <strong>
