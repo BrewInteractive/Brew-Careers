@@ -1,70 +1,34 @@
-# Turborepo Başlangıç Örneği
+# Brew Careers
 
-Bu, resmi bir Turborepo başlangıç örneğidir.
+It is a web project where you can view job postings of the Brew company and apply for jobs.
 
-## Bu örneği kullanma
+## The goal of the project
 
-Aşağıdaki komutu çalıştırın:
+To ensure that Brew company reaches qualified employees and that employees have the opportunity to build a career at Brew company.
 
-npx create-turbo@latest
+## Features of the project
 
-## İçinde ne var?
+- Job posting list
+- Job posting details
+- Job posting application form
 
-Bu Turborepo aşağıdaki paketleri/uygulamaları içerir:
+## Technologies used by the project
 
-### Uygulamalar ve Paketler
+- Remix.js
+- Notion API
+- Turbo Repo
 
-- `docs`: Bir Next.js uygulaması
-- `web`: Başka bir Next.js uygulaması
-- `ui`: Hem `web` hem de `docs` uygulamaları tarafından paylaşılan bir React bileşen kütüphanesi
-- `eslint-config-custom`: `eslint` yapılandırmaları (`eslint-config-next` ve `eslint-config-prettier` içerir)
-- `tsconfig`: Monorepo boyunca kullanılan `tsconfig.json`'lar
+## Installation and use of the project
 
-Her paket / uygulama %100 TypeScript'tir.
+1. Clone the project from GitHub.
+2. Install the project's dependencies using the `yarn install` command.
+3. Run the project using the `yarn dev` command.
 
-### Yardımcı Programlar
+note: yarn version must be minimum 4.0.2, node version must be minimum 20.9.0
 
-Bu Turborepo sizin için önceden kurulmuş bazı ek araçlara sahiptir:
+## Useful links
 
-- Statik tip denetimi için TypeScript
-- Kod linting için ESLint
-- Kod formatlama için Prettier
-
-### Derleme
-
-Tüm uygulamaları ve paketleri derlemek için aşağıdaki komutu çalıştırın:
-
-cd my-turborepo
-pnpm build
-Use code with caution. Learn more
-Geliştirme
-Tüm uygulamaları ve paketleri geliştirmek için aşağıdaki komutu çalıştırın:
-
-cd my-turborepo
-pnpm dev
-
-### Uzak Önbellek
-
-Turborepo, önbellek yapıtılarını makineler arasında paylaşmak için Uzak Önbellek olarak bilinen bir teknik kullanabilir. Bu, build önbelleklerini ekibiniz ve CI/CD pipelines'larıyla paylaşmanıza olanak tanır.
-
-Varsayılan olarak, Turborepo yerel olarak önbelleklenir. Uzak Önbelleği etkinleştirmek için bir Vercel hesabına sahip olmanız gerekir. Hesabınız yoksa bir tane oluşturabilirsiniz: [https://vercel.com/signup](https://vercel.com/signup), ardından aşağıdaki komutları girin:
-
-cd my-turborepo
-npx turbo login
-
-Bu, Turborepo CLI'nı Vercel hesabınız ile kimlik doğrulamasını sağlayacaktır.
-
-Ardından, Turborepo'nuzu Uzak Önbelleğe aşağıdaki komutu Turborepo'nuzun kökünden çalıştırarak bağlayabilirsiniz:
-
-npx turbo link
-
-## Faydalı Linkler
-
-Turborepo'nun gücünü daha iyi öğrenin:
-
-- Görevler: [https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- Önbellek: [https://turbo.build/repo/docs/core-concepts/caching](https://turbo.build/repo/docs/core-concepts/caching)
-- Uzak Önbellek: [https://turbo.build/repo/docs/core-concepts/remote-caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- Filtreleme: [https://turbo.build/repo/docs/core-concepts/monorepos/filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- Yapılandırma Seçenekleri: [https://turbo.build/repo/docs/reference/configuration](https://turbo.build/repo/docs/reference/configuration)
-- CLI Kullanımı: [https://turbo.build/repo/docs/reference/command-line-reference](https://turbo.build/repo/docs/reference/command-line-reference)
+Brew company website: https://brew.com
+Remix: https://remix.run
+Notion API: https://developers.notion.com/
+Turbo Repo :https://turbo.build/repo/docs

@@ -1,39 +1,34 @@
 # Brew Careers
 
-Brew şirketinin iş ilanlarını görüntüleyebileceğiniz ve işe başvuru yapabileceğiniz bir projedir.
+It is a web project where you can view job postings of the Brew company and apply for jobs.
 
-## Projenin amacı
+## The goal of the project
 
-Brew şirketinin nitelikli çalışanlara ulaşmasını ve çalışanların ise Brew şirketinde kariyer yapma fırsatı bulmasını sağlamaktır.
+To ensure that Brew company reaches qualified employees and that employees have the opportunity to build a career at Brew company.
 
-## Projenin özellikleri
+## Features of the project
 
-İş ilanları: Kullanıcılar, iş ilanlarını görüntüleyebilir ve filtreleyebilir. İş ilanları, pozisyon, şirket, konum, tarih ve diğer faktörlere göre filtrelenebilir.
-İş başvurusu: Kullanıcılar, işe başvurabilir ve başvuru bilgilerini kaydedebilir. Başvuru bilgileri, ad, soyad, e-posta adresi, telefon numarası, eğitim durumu, iş deneyimi ve diğer bilgileri içerir.
-Başvuru yönetimi: Başvurular, notion üzerinden kaydedilir ve yönetilir. Notion üzerinden başvuruların durumu, takip edilmesi gereken adımlar ve diğer bilgiler takip edilebilir.
-CV ve bilgi görüntüleme: Notion üzerinden başvuru yapan kişilerin cv'leri ve bilgileri görüntülenebilir.
+- Job posting list
+- Job posting details
+- Job posting application form
 
-## Projeyi nasıl kullanırım
+## Technologies used by the project
 
-Projeyi çalıştırmak için, npm install komutunu çalıştırın.
-Projeyi çalıştırmak için, npm start komutunu çalıştırın.
-Projeyi web tarayıcınızda http://localhost:3000 adresinden açarak görüntüleyebilirsiniz.
+- Remix.js
+- Notion API
+- Turbo Repo
 
-## Projeyi nasıl geliştirebilirim
+## Installation and use of the project
 
-Yeni iş ilanları ekleyebilirsiniz.
-İş ilanlarını filtreleme seçeneklerini genişletebilirsiniz.
-Başvuru sürecini daha da kolaylaştırabilirsiniz.
-CV ve bilgi görüntüleme özelliklerini geliştirebilirsiniz.
+1. Clone the project from GitHub.
+2. Install the project's dependencies using the `yarn install` command.
+3. Run the project using the `yarn dev` command.
 
-## Faydalı bağlantılar
+note: yarn version must be minimum 4.0.2, node version must be minimum 20.9.0
 
-Brew şirketinin web sitesi: https://brew.com
-Remix belgeleri: https://remix.run
-Notion belgeleri: https://www.notion.so/docs
+## Useful links
 
-## Remix'e Hoş Geldiniz!
-
-Bu bölüm, Remix framework'ü hakkında temel bilgileri sağlar. Remix, web uygulamaları oluşturmak için kullanılan bir JavaScript framework'üdür. Remix ile, hızlı ve kolay bir şekilde modern, sezgisel ve duyarlı web uygulamaları oluşturabilirsiniz.
-
-Remix belgelerini okumak için https://remix.run adresini ziyaret edebilirsiniz.
+Brew company website: https://brew.com
+Remix: https://remix.run
+Notion API: https://developers.notion.com/
+Turbo Repo :https://turbo.build/repo/docs
