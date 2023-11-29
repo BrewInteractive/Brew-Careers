@@ -12,6 +12,6 @@ RUN yarn global add turbo
 RUN yarn install
 RUN turbo build
 
-EXPOSE 4001
+EXPOSE 3050
 
 CMD turbo start --filter='./apps/brew-careers'

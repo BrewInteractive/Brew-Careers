@@ -7,7 +7,7 @@
   "scripts": {
     "build": "remix build",
     "dev": "PORT=3050 remix dev --manual",
-    "start": "remix-serve ./build/index.js",
+    "start": "PORT=3050 remix-serve ./build/index.js",
     "typecheck": "tsc"
   },
   "dependencies": {
