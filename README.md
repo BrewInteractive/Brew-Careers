@@ -1,81 +1,70 @@
-# Turborepo starter
+# Turborepo Başlangıç Örneği
 
-This is an official starter Turborepo.
+Bu, resmi bir Turborepo başlangıç örneğidir.
 
-## Using this example
+## Bu örneği kullanma
 
-Run the following command:
+Aşağıdaki komutu çalıştırın:
 
-```sh
 npx create-turbo@latest
-```
 
-## What's inside?
+## İçinde ne var?
 
-This Turborepo includes the following packages/apps:
+Bu Turborepo aşağıdaki paketleri/uygulamaları içerir:
 
-### Apps and Packages
+### Uygulamalar ve Paketler
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
+- `docs`: Bir Next.js uygulaması
+- `web`: Başka bir Next.js uygulaması
+- `ui`: Hem `web` hem de `docs` uygulamaları tarafından paylaşılan bir React bileşen kütüphanesi
+- `eslint-config-custom`: `eslint` yapılandırmaları (`eslint-config-next` ve `eslint-config-prettier` içerir)
+- `tsconfig`: Monorepo boyunca kullanılan `tsconfig.json`'lar
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+Her paket / uygulama %100 TypeScript'tir.
 
-### Utilities
+### Yardımcı Programlar
 
-This Turborepo has some additional tools already setup for you:
+Bu Turborepo sizin için önceden kurulmuş bazı ek araçlara sahiptir:
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- Statik tip denetimi için TypeScript
+- Kod linting için ESLint
+- Kod formatlama için Prettier
 
-### Build
+### Derleme
 
-To build all apps and packages, run the following command:
+Tüm uygulamaları ve paketleri derlemek için aşağıdaki komutu çalıştırın:
 
-```
 cd my-turborepo
 pnpm build
-```
+Use code with caution. Learn more
+Geliştirme
+Tüm uygulamaları ve paketleri geliştirmek için aşağıdaki komutu çalıştırın:
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
 cd my-turborepo
 pnpm dev
-```
 
-### Remote Caching
+### Uzak Önbellek
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+Turborepo, önbellek yapıtılarını makineler arasında paylaşmak için Uzak Önbellek olarak bilinen bir teknik kullanabilir. Bu, build önbelleklerini ekibiniz ve CI/CD pipelines'larıyla paylaşmanıza olanak tanır.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+Varsayılan olarak, Turborepo yerel olarak önbelleklenir. Uzak Önbelleği etkinleştirmek için bir Vercel hesabına sahip olmanız gerekir. Hesabınız yoksa bir tane oluşturabilirsiniz: [https://vercel.com/signup](https://vercel.com/signup), ardından aşağıdaki komutları girin:
 
-```
 cd my-turborepo
 npx turbo login
-```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Bu, Turborepo CLI'nı Vercel hesabınız ile kimlik doğrulamasını sağlayacaktır.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+Ardından, Turborepo'nuzu Uzak Önbelleğe aşağıdaki komutu Turborepo'nuzun kökünden çalıştırarak bağlayabilirsiniz:
 
-```
 npx turbo link
-```
 
-## Useful Links
+## Faydalı Linkler
 
-Learn more about the power of Turborepo:
+Turborepo'nun gücünü daha iyi öğrenin:
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+- Görevler: [https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
+- Önbellek: [https://turbo.build/repo/docs/core-concepts/caching](https://turbo.build/repo/docs/core-concepts/caching)
+- Uzak Önbellek: [https://turbo.build/repo/docs/core-concepts/remote-caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
+- Filtreleme: [https://turbo.build/repo/docs/core-concepts/monorepos/filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
+- Yapılandırma Seçenekleri: [https://turbo.build/repo/docs/reference/configuration](https://turbo.build/repo/docs/reference/configuration)
+- CLI Kullanımı: [https://turbo.build/repo/docs/reference/command-line-reference](https://turbo.build/repo/docs/reference/command-line-reference)

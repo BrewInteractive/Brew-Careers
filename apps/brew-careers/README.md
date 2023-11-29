@@ -1,38 +1,39 @@
-# Welcome to Remix!
+# Brew Careers
 
-- [Remix Docs](https://remix.run/docs)
+Brew şirketinin iş ilanlarını görüntüleyebileceğiniz ve işe başvuru yapabileceğiniz bir projedir.
 
-## Development
+## Projenin amacı
 
-From your terminal:
+Brew şirketinin nitelikli çalışanlara ulaşmasını ve çalışanların ise Brew şirketinde kariyer yapma fırsatı bulmasını sağlamaktır.
 
-```sh
-npm run dev
-```
+## Projenin özellikleri
 
-This starts your app in development mode, rebuilding assets on file changes.
+İş ilanları: Kullanıcılar, iş ilanlarını görüntüleyebilir ve filtreleyebilir. İş ilanları, pozisyon, şirket, konum, tarih ve diğer faktörlere göre filtrelenebilir.
+İş başvurusu: Kullanıcılar, işe başvurabilir ve başvuru bilgilerini kaydedebilir. Başvuru bilgileri, ad, soyad, e-posta adresi, telefon numarası, eğitim durumu, iş deneyimi ve diğer bilgileri içerir.
+Başvuru yönetimi: Başvurular, notion üzerinden kaydedilir ve yönetilir. Notion üzerinden başvuruların durumu, takip edilmesi gereken adımlar ve diğer bilgiler takip edilebilir.
+CV ve bilgi görüntüleme: Notion üzerinden başvuru yapan kişilerin cv'leri ve bilgileri görüntülenebilir.
 
-## Deployment
+## Projeyi nasıl kullanırım
 
-First, build your app for production:
+Projeyi çalıştırmak için, npm install komutunu çalıştırın.
+Projeyi çalıştırmak için, npm start komutunu çalıştırın.
+Projeyi web tarayıcınızda http://localhost:3000 adresinden açarak görüntüleyebilirsiniz.
 
-```sh
-npm run build
-```
+## Projeyi nasıl geliştirebilirim
 
-Then run the app in production mode:
+Yeni iş ilanları ekleyebilirsiniz.
+İş ilanlarını filtreleme seçeneklerini genişletebilirsiniz.
+Başvuru sürecini daha da kolaylaştırabilirsiniz.
+CV ve bilgi görüntüleme özelliklerini geliştirebilirsiniz.
 
-```sh
-npm start
-```
+## Faydalı bağlantılar
 
-Now you'll need to pick a host to deploy it to.
+Brew şirketinin web sitesi: https://brew.com
+Remix belgeleri: https://remix.run
+Notion belgeleri: https://www.notion.so/docs
 
-### DIY
+## Remix'e Hoş Geldiniz!
 
-If you're familiar with deploying node applications, the built-in Remix app server is production-ready.
+Bu bölüm, Remix framework'ü hakkında temel bilgileri sağlar. Remix, web uygulamaları oluşturmak için kullanılan bir JavaScript framework'üdür. Remix ile, hızlı ve kolay bir şekilde modern, sezgisel ve duyarlı web uygulamaları oluşturabilirsiniz.
 
-Make sure to deploy the output of `remix build`
-
-- `build/`
-- `public/build/`
+Remix belgelerini okumak için https://remix.run adresini ziyaret edebilirsiniz.
