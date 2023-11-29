@@ -1,38 +1,34 @@
-# Welcome to Remix!
+# Brew Careers
 
-- [Remix Docs](https://remix.run/docs)
+It is a web project where you can view job postings of the Brew company and apply for jobs.
 
-## Development
+## The goal of the project
 
-From your terminal:
+To ensure that Brew company reaches qualified employees and that employees have the opportunity to build a career at Brew company.
 
-```sh
-npm run dev
-```
+## Features of the project
 
-This starts your app in development mode, rebuilding assets on file changes.
+- Job posting list
+- Job posting details
+- Job posting application form
 
-## Deployment
+## Technologies used by the project
 
-First, build your app for production:
+- Remix.js
+- Notion API
+- Turbo Repo
 
-```sh
-npm run build
-```
+## Installation and use of the project
 
-Then run the app in production mode:
+1. Clone the project from GitHub.
+2. Install the project's dependencies using the `yarn install` command.
+3. Run the project using the `yarn dev` command.
 
-```sh
-npm start
-```
+note: yarn version must be minimum 4.0.2, node version must be minimum 20.9.0
 
-Now you'll need to pick a host to deploy it to.
+## Useful links
 
-### DIY
-
-If you're familiar with deploying node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `remix build`
-
-- `build/`
-- `public/build/`
+Brew company website: https://brew.com
+Remix: https://remix.run
+Notion API: https://developers.notion.com/
+Turbo Repo :https://turbo.build/repo/docs

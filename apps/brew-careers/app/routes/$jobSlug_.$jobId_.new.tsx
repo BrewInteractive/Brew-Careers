@@ -11,7 +11,6 @@ import { Client } from "@notionhq/client";
 import type { FormData } from "util/validation";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
-import IUploadFileResponse from "~/lib/interfaces/uploadFileResponse";
 import React from "react";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
@@ -52,7 +51,12 @@ export let loader: LoaderFunction = async ({
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_ENDPOINT } = process.env;
+  const {
+    STORAGE_ACCESS_KEY,
+    STORAGE_SECRET,
+    STORAGE_ENDPOINT,
+    DIGITALOCEAN_FILE_URL,
+  } = process.env;
 
   if (!STORAGE_ENDPOINT) {
     throw new Error(`Storage is missing required configuration.`);
@@ -90,17 +94,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
     },
   });
 
-  const uploadFileResponse = (await new Upload({
+  const fileName = `${uuid()}-${params.jobId}.${getFileExtension(
+    sendValidationData?.cv?.name ?? ""
+  )}`;
+
+  const uploadFileResponse = await new Upload({
     client,
     leavePartsOnError: false,
     params: {
       Bucket: "brew-careers",
-      Key: `${uuid()}-${params.jobId}.${getFileExtension(
-        sendValidationData?.cv?.name ?? ""
-      )}`,
+      Key: fileName,
       Body: formData.get("cv") as File,
+      ACL: "public-read",
     },
-  }).done()) as unknown as IUploadFileResponse;
+  }).done();
 
   if (uploadFileResponse.$metadata.httpStatusCode === 200) {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -132,7 +139,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           files: [
             {
               external: {
-                url: uploadFileResponse.Location,
+                url: `${DIGITALOCEAN_FILE_URL}${fileName}`,
               },
               name: "CV",
             },
@@ -166,48 +173,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ],
         },
         "GitHub profile": {
-          rich_text: [
-            {
-              text: {
-                content: String(formData.get("github")),
-              },
-            },
-          ],
+          url:
+            String(formData.get("github")) === ""
+              ? "#"
+              : String(formData.get("github")),
         },
         "BitBucket profile": {
-          rich_text: [
-            {
-              text: {
-                content: String(formData.get("bitbucket")),
-              },
-            },
-          ],
+          url:
+            String(formData.get("bitbucket")) === ""
+              ? "#"
+              : String(formData.get("bitbucket")),
         },
         "StackOverflow profile": {
-          rich_text: [
-            {
-              text: {
-                content: String(formData.get("stackOverflow")),
-              },
-            },
-          ],
+          url:
+            String(formData.get("stackOverflow")) === ""
+              ? "#"
+              : String(formData.get("stackOverflow")),
         },
         Website: {
-          rich_text: [
-            {
-              text: {
-                content: String(formData.get("website")),
-              },
-            },
-          ],
+          url:
+            String(formData.get("website")) === ""
+              ? "#"
+              : String(formData.get("website")),
         },
-        acceptDataTransferAbroad: {
+        "Accept Data Transfer Abroad": {
           checkbox: Boolean(formData.get("acceptDataTransferAbroad")),
         },
-        acceptDataSharing: {
+        "Accept Data Sharing": {
           checkbox: Boolean(formData.get("acceptDataSharing")),
         },
-        undertakeInformingPermits: {
+        "Under Take Informing Permits": {
           checkbox: Boolean(formData.get("undertakeInformingPermits")),
         },
       },
@@ -217,7 +212,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return redirect(`/${params.jobSlug}/${params.jobId}/applied`);
     }
   } else {
-    throw new Error(`An error has occured`);
+    throw new Error(`An error has occured when file upload`);
   }
 
   return null;
