@@ -5,6 +5,9 @@ export interface FormData {
   cv: File | null;
   birthYear: string;
   city: string;
+  acceptDataTransferAbroad: boolean;
+  acceptDataSharing: boolean;
+  undertakeInformingPermits: boolean;
 }
 
 interface Errors {
@@ -14,6 +17,9 @@ interface Errors {
   cv?: string;
   birthYear?: string;
   city?: string;
+  acceptDataTransferAbroad: string;
+  acceptDataSharing: string;
+  undertakeInformingPermits: string;
 }
 
 // Dosya uzantısını alma fonksiyonu
@@ -41,8 +47,8 @@ function validateForm(formData: FormData): Errors {
     errors.phone = "Geçerli bir telefon numarası giriniz";
   }
 
-  // Dosya boyutu kontrolü (maksimum 50 MB)
-  const maxFileSize = 50 * 1024 * 1024; // 50 MB
+  // Dosya boyutu kontrolü (maksimum 10 MB)
+  const maxFileSize = 10 * 1024 * 1024; // 10 MB
 
   // file kontrolü (desteklenen dosya türleri)
   const supportedFileTypes = [
@@ -61,7 +67,7 @@ function validateForm(formData: FormData): Errors {
     formData.cv.size > maxFileSize
   ) {
     errors.cv =
-      "Desteklenen dosya türleri: DOC, DOCX, PDF, ODT, RTF, JPEG, PNG ve dosya boyutu maksimum 50 MB olmalıdır.";
+      "Desteklenen dosya türleri: DOC, DOCX, PDF, ODT, RTF, JPEG, PNG ve dosya boyutu maksimum 10 MB olmalıdır.";
   }
 
   // birthYear kontrolü
@@ -72,6 +78,22 @@ function validateForm(formData: FormData): Errors {
   // city kontrolü
   if (!formData.city || formData.city.trim() === "") {
     errors.city = "Şehir bilgisini giriniz";
+  }
+
+  if (!formData.acceptDataTransferAbroad) {
+    errors.acceptDataTransferAbroad =
+      "Veri transferini yurtdışına kabul etmelisiniz";
+  }
+
+  // acceptDataSharing kontrolü
+  if (!formData.acceptDataSharing) {
+    errors.acceptDataSharing = "Veri paylaşımını kabul etmelisiniz";
+  }
+
+  // undertakeInformingPermits kontrolü
+  if (!formData.undertakeInformingPermits) {
+    errors.undertakeInformingPermits =
+      "İzinleri bildirme taahhüdünü kabul etmelisiniz";
   }
 
   return errors;
