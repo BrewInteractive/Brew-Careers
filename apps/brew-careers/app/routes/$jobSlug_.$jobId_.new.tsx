@@ -77,6 +77,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     city: String(formData.get("city")),
     cv: formData.get("cv") as File,
     phone: String(formData.get("phone")),
+    acceptDataTransferAbroad: Boolean(formData.get("acceptDataTransferAbroad")),
+    acceptDataSharing: Boolean(formData.get("acceptDataSharing")),
+    undertakeInformingPermits: Boolean(
+      formData.get("undertakeInformingPermits")
+    ),
   };
 
   const errors = await validateForm(sendValidationData);
@@ -171,30 +176,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
               },
             },
           ],
-        },
-        "GitHub profile": {
-          url:
-            String(formData.get("github")) === ""
-              ? "#"
-              : String(formData.get("github")),
-        },
-        "BitBucket profile": {
-          url:
-            String(formData.get("bitbucket")) === ""
-              ? "#"
-              : String(formData.get("bitbucket")),
-        },
-        "StackOverflow profile": {
-          url:
-            String(formData.get("stackOverflow")) === ""
-              ? "#"
-              : String(formData.get("stackOverflow")),
-        },
-        Website: {
-          url:
-            String(formData.get("website")) === ""
-              ? "#"
-              : String(formData.get("website")),
         },
         "Accept Data Transfer Abroad": {
           checkbox: Boolean(formData.get("acceptDataTransferAbroad")),
@@ -295,7 +276,8 @@ export default function JobApply() {
                       required
                       aria-required="true"
                       placeholder="Example: 05555555555"
-                      type="tel"
+                      type="number"
+                      pattern=".{10,10}"
                       name="phone"
                     />
                   </div>
@@ -337,7 +319,7 @@ export default function JobApply() {
                     </div>
                     <span className="help-block">
                       Accepted files: DOC, DOCX, PDF, ODT, RTF, JPEG and PNG up
-                      to 50MB.
+                      to 10MB.
                     </span>
                   </div>
                 </div>
@@ -403,70 +385,6 @@ export default function JobApply() {
                         aria-required="true"
                         type="text"
                         name="city"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="question string_type">
-                    <div className="form-group string optional candidate_open_question_answers_content">
-                      <label
-                        className="string optional control-label"
-                        htmlFor="github"
-                      >
-                        GitHub profile
-                      </label>
-                      <input
-                        className="string optional form-control"
-                        type="text"
-                        name="github"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="question string_type">
-                    <div className="form-group string optional candidate_open_question_answers_content">
-                      <label
-                        className="string optional control-label"
-                        htmlFor="bitbucket"
-                      >
-                        BitBucket profile
-                      </label>
-                      <input
-                        className="string optional form-control"
-                        type="text"
-                        name="bitbucket"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="question string_type">
-                    <div className="form-group string optional candidate_open_question_answers_content">
-                      <label
-                        className="string optional control-label"
-                        htmlFor="stackOverflow"
-                      >
-                        StackOverflow profile
-                      </label>
-                      <input
-                        className="string optional form-control"
-                        type="text"
-                        name="stackOverflow"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="question string_type">
-                    <div className="form-group string optional candidate_open_question_answers_content">
-                      <label
-                        className="string optional control-label"
-                        htmlFor="website"
-                      >
-                        Website
-                      </label>
-                      <input
-                        className="string optional form-control"
-                        type="text"
-                        name="website"
                       />
                     </div>
                   </div>
@@ -761,37 +679,6 @@ export default function JobApply() {
                     <div className="form-group boolean optional candidate_open_question_answers_flag">
                       <label
                         className="boolean optional control-label checkbox"
-                        htmlFor="acceptDataSharing"
-                      >
-                        <input
-                          className="boolean optional"
-                          type="checkbox"
-                          value="1"
-                          name="acceptDataSharing"
-                          id="acceptDataSharing"
-                        />
-                        <div>
-                          <p>
-                            I have read the
-                            <strong>
-                              Brev Bilişim Anonim Şirketi Informative Note on
-                              Personal Data
-                            </strong>
-                            <strong>of</strong>
-                            <strong>Employee Candidates </strong>and within this
-                            scope, <strong>I accept</strong> that my personal
-                            data is shared with the persons I stated as
-                            references.
-                          </p>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="question legal_type">
-                    <div className="form-group boolean optional candidate_open_question_answers_flag">
-                      <label
-                        className="boolean optional control-label checkbox"
                         htmlFor="acceptDataTransferAbroad"
                       >
                         <input
@@ -800,6 +687,7 @@ export default function JobApply() {
                           value="1"
                           name="acceptDataTransferAbroad"
                           id="acceptDataTransferAbroad"
+                          required
                         />
                         <div>
                           <p>
@@ -827,6 +715,38 @@ export default function JobApply() {
                     <div className="form-group boolean optional candidate_open_question_answers_flag">
                       <label
                         className="boolean optional control-label checkbox"
+                        htmlFor="acceptDataSharing"
+                      >
+                        <input
+                          className="boolean optional"
+                          type="checkbox"
+                          value="1"
+                          name="acceptDataSharing"
+                          id="acceptDataSharing"
+                          required
+                        />
+                        <div>
+                          <p>
+                            I have read the
+                            <strong>
+                              Brev Bilişim Anonim Şirketi Informative Note on
+                              Personal Data
+                            </strong>
+                            <strong>of</strong>
+                            <strong>Employee Candidates </strong>and within this
+                            scope, <strong>I accept</strong> that my personal
+                            data is shared with the persons I stated as
+                            references.
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="question legal_type">
+                    <div className="form-group boolean optional candidate_open_question_answers_flag">
+                      <label
+                        className="boolean optional control-label checkbox"
                         htmlFor="undertakeInformingPermits"
                       >
                         <input
@@ -835,6 +755,7 @@ export default function JobApply() {
                           value="1"
                           name="undertakeInformingPermits"
                           id="undertakeInformingPermits"
+                          required
                         />
                         <div>
                           <p>
