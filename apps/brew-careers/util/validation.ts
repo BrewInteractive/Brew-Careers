@@ -5,9 +5,11 @@ export interface FormData {
   cv: File | null;
   birthYear: string;
   city: string;
+  coverLetter: string;
   acceptDataTransferAbroad: boolean;
   acceptDataSharing: boolean;
   undertakeInformingPermits: boolean;
+  jobTitle: string;
 }
 
 interface Errors {
@@ -17,9 +19,10 @@ interface Errors {
   cv?: string;
   birthYear?: string;
   city?: string;
-  acceptDataTransferAbroad: string;
-  acceptDataSharing: string;
-  undertakeInformingPermits: string;
+  coverLetter?: string;
+  acceptDataTransferAbroad?: string;
+  acceptDataSharing?: string;
+  undertakeInformingPermits?: string;
 }
 
 // Dosya uzantısını alma fonksiyonu

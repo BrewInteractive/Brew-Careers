@@ -49,46 +49,23 @@ export let loader: LoaderFunction = async ({
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const formData = await request.formData();
-
-  const {
-    STORAGE_ACCESS_KEY,
-    STORAGE_SECRET,
-    STORAGE_ENDPOINT,
-    DIGITALOCEAN_FILE_URL,
-  } = process.env;
+  const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_ENDPOINT } = process.env;
 
   if (!STORAGE_ENDPOINT) {
-    throw new Error(`Storage is missing required configuration.`);
+    throw new Error(`STORAGE_ENDPOINT is missing required configuration.`);
   }
 
   if (!STORAGE_ACCESS_KEY) {
-    throw new Error(`Storage is missing required configuration.`);
+    throw new Error(`STORAGE_ACCESS_KEY is missing required configuration.`);
   }
 
   if (!STORAGE_SECRET) {
-    throw new Error(`Storage is missing required configuration.`);
+    throw new Error(`STORAGE_SECRET is missing required configuration.`);
   }
 
-  const sendValidationData: FormData = {
-    name: String(formData.get("name")),
-    email: String(formData.get("email")),
-    birthYear: String(formData.get("birthYear")),
-    city: String(formData.get("city")),
-    cv: formData.get("cv") as File,
-    phone: String(formData.get("phone")),
-    acceptDataTransferAbroad: Boolean(formData.get("acceptDataTransferAbroad")),
-    acceptDataSharing: Boolean(formData.get("acceptDataSharing")),
-    undertakeInformingPermits: Boolean(
-      formData.get("undertakeInformingPermits")
-    ),
-  };
+  const formData = await request.formData();
 
-  const errors = await validateForm(sendValidationData);
-
-  if (Object.keys(errors).length > 0) {
-    return errors;
-  }
+  const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
   const client = new S3Client({
     region: "fra1",
@@ -99,98 +76,53 @@ export async function action({ request, params }: ActionFunctionArgs) {
     },
   });
 
-  const fileName = `${uuid()}-${params.jobId}.${getFileExtension(
-    sendValidationData?.cv?.name ?? ""
+  const data: FormData = {
+    name: String(formData.get("name")),
+    email: String(formData.get("email")),
+    birthYear: String(formData.get("birthYear")),
+    city: String(formData.get("city")),
+    cv: formData.get("cv") as File,
+    phone: String(formData.get("phone")),
+    acceptDataTransferAbroad: Boolean(formData.get("acceptDataTransferAbroad")),
+    acceptDataSharing: Boolean(formData.get("acceptDataSharing")),
+    coverLetter: String(formData.get("coverLetter")),
+    undertakeInformingPermits: Boolean(
+      formData.get("undertakeInformingPermits")
+    ),
+    jobTitle: String(formData.get("jobTitle")),
+  };
+
+  const errors = await validateForm(data);
+
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  const randomFileName = `${uuid()}-${params.jobId}.${getFileExtension(
+    data?.cv?.name ?? ""
   )}`;
 
-  const uploadFileResponse = await new Upload({
+  const uploadFileResponse = await uploadCvFile(
     client,
-    leavePartsOnError: false,
-    params: {
-      Bucket: "brew-careers",
-      Key: fileName,
-      Body: formData.get("cv") as File,
-      ACL: "public-read",
-    },
-  }).done();
+    randomFileName,
+    formData
+  );
 
   if (uploadFileResponse.$metadata.httpStatusCode === 200) {
-    const notion = new Client({ auth: process.env.NOTION_API_KEY });
+    const userResponse = await updateOrCreateUser(notion, data);
 
-    const response = await notion.pages.create({
-      parent: {
-        database_id: process.env.APPLICATION_DATABASE_ID ?? "",
-      },
-      properties: {
-        Jobs: {
-          relation: [{ id: params.jobId ?? "" }],
-        },
-        Name: {
-          title: [
-            {
-              text: {
-                content: String(formData.get("name")),
-              },
-            },
-          ],
-        },
-        Email: {
-          email: String(formData.get("email")),
-        },
-        Phone: {
-          phone_number: String(formData.get("phone")),
-        },
-        CV: {
-          files: [
-            {
-              external: {
-                url: `${DIGITALOCEAN_FILE_URL}${fileName}`,
-              },
-              name: "CV",
-            },
-          ],
-        },
-        "Cover letter": {
-          rich_text: [
-            {
-              text: {
-                content: String(formData.get("coverLetter")),
-              },
-            },
-          ],
-        },
-        "Year of birth": {
-          rich_text: [
-            {
-              text: {
-                content: String(formData.get("birthYear")),
-              },
-            },
-          ],
-        },
-        "City of residence": {
-          rich_text: [
-            {
-              text: {
-                content: String(formData.get("city")),
-              },
-            },
-          ],
-        },
-        "Accept Data Transfer Abroad": {
-          checkbox: Boolean(formData.get("acceptDataTransferAbroad")),
-        },
-        "Accept Data Sharing": {
-          checkbox: Boolean(formData.get("acceptDataSharing")),
-        },
-        "Under Take Informing Permits": {
-          checkbox: Boolean(formData.get("undertakeInformingPermits")),
-        },
-      },
-    });
+    if (userResponse.id) {
+      const createApplicationResponse = await createApplication(
+        notion,
+        params.jobId as string,
+        userResponse.id,
+        randomFileName,
+        data
+      );
 
-    if (response.id) {
-      return redirect(`/${params.jobSlug}/${params.jobId}/applied`);
+      if (createApplicationResponse.id) {
+        return redirect(`/${params.jobSlug}/${params.jobId}/applied`);
+      }
     }
   } else {
     throw new Error(`An error has occured when file upload`);
@@ -198,6 +130,183 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return null;
 }
+
+const createApplication = (
+  notion: Client,
+  jobId: string,
+  userId: string,
+  fileName: string,
+  data: FormData
+) => {
+  return notion.pages.create({
+    parent: {
+      database_id: process.env.APPLICATION_DATABASE_ID ?? "",
+    },
+    properties: generateApplicationRequest(jobId, userId, fileName, data),
+  });
+};
+
+const uploadCvFile = (
+  client: S3Client,
+  randomFileName: string,
+  formData: globalThis.FormData
+) => {
+  return new Upload({
+    client,
+    leavePartsOnError: false,
+    params: {
+      Bucket: "brew-careers",
+      Key: randomFileName,
+      Body: formData.get("cv") as File,
+      ACL: "public-read",
+    },
+  }).done();
+};
+
+const createUser = (notion: Client, data: FormData) => {
+  return notion.pages.create({
+    parent: {
+      database_id: process.env.USER_DATABASE_ID ?? "",
+    },
+    properties: generateUserRequest(data),
+  });
+};
+
+const updateUser = (notion: Client, userId: string, data: FormData) => {
+  return notion.pages.update({
+    page_id: userId,
+    properties: generateUserRequest(data),
+  });
+};
+
+const getExistingUser = (notion: Client, data: FormData) => {
+  return notion.databases.query({
+    database_id: process.env.USER_DATABASE_ID ?? "",
+    filter: {
+      property: "Email",
+      email: {
+        equals: data.email,
+      },
+    },
+  });
+};
+
+const updateOrCreateUser = async (notion: Client, data: FormData) => {
+  const existingUser = await getExistingUser(notion, data);
+
+  if (existingUser && existingUser.results && existingUser.results.length > 0) {
+    const userId = existingUser.results[0].id;
+    return updateUser(notion, userId, data);
+  } else {
+    return createUser(notion, data);
+  }
+};
+
+const generateUserRequest = (data: FormData) => {
+  return {
+    Name: {
+      title: [
+        {
+          text: {
+            content: data.name,
+          },
+        },
+      ],
+    },
+    Email: {
+      email: data.email,
+    },
+    Phone: {
+      rich_text: [
+        {
+          text: {
+            content: data.phone,
+          },
+        },
+      ],
+    },
+    "Year of birth": {
+      rich_text: [
+        {
+          text: {
+            content: data.birthYear,
+          },
+        },
+      ],
+    },
+    "City of residence": {
+      rich_text: [
+        {
+          text: {
+            content: data.city,
+          },
+        },
+      ],
+    },
+  };
+};
+
+const generateApplicationRequest = (
+  jobId: string,
+  userId: string,
+  fileName: string,
+  data: FormData
+) => {
+  return {
+    Jobs: {
+      relation: [{ id: jobId ?? "" }],
+    },
+    Users: {
+      relation: [
+        {
+          id: userId,
+        },
+      ],
+    },
+    Name: {
+      title: [
+        {
+          text: {
+            content: `${data.name} (${data.jobTitle})`,
+          },
+        },
+      ],
+    },
+    CV: {
+      files: [
+        {
+          external: {
+            url: `${process.env.DIGITALOCEAN_FILE_URL}${fileName}`,
+          },
+          name: "CV",
+        },
+      ],
+    },
+    Status: {
+      select: {
+        name: "Applied",
+      },
+    },
+    "Cover letter": {
+      rich_text: [
+        {
+          text: {
+            content: data.coverLetter,
+          },
+        },
+      ],
+    },
+    "Accept Data Transfer Abroad": {
+      checkbox: data.acceptDataTransferAbroad,
+    },
+    "Accept Data Sharing": {
+      checkbox: data.acceptDataSharing,
+    },
+    "Under Take Informing Permits": {
+      checkbox: data.undertakeInformingPermits,
+    },
+  };
+};
 
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
@@ -214,6 +323,13 @@ export default function JobApply() {
               method="post"
               encType="multipart/form-data"
             >
+              <input
+                hidden={true}
+                name="jobTitle"
+                type="text"
+                value={job.title}
+              />
+
               <section>
                 <div className="col-md-3 description">
                   <h3>My information</h3>
