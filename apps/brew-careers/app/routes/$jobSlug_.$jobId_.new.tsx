@@ -125,7 +125,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
     }
   } else {
-    throw new Error(`An error has occured when file upload`);
+    throw new Error(`An error has occurred when file upload`);
   }
 
   return null;
