@@ -168,14 +168,14 @@ const createUser = (notion: Client, data: FormData) => {
     parent: {
       database_id: process.env.USER_DATABASE_ID ?? "",
     },
-    properties: generateUserRequest(data),
+    properties: generateUserRequest(data, true),
   });
 };
 
 const updateUser = (notion: Client, userId: string, data: FormData) => {
   return notion.pages.update({
     page_id: userId,
-    properties: generateUserRequest(data),
+    properties: generateUserRequest(data, false),
   });
 };
 
@@ -202,8 +202,8 @@ const updateOrCreateUser = async (notion: Client, data: FormData) => {
   }
 };
 
-const generateUserRequest = (data: FormData) => {
-  return {
+const generateUserRequest = (data: FormData, isCreate: boolean): any => {
+  const request: any = {
     Name: {
       title: [
         {
@@ -243,7 +243,23 @@ const generateUserRequest = (data: FormData) => {
         },
       ],
     },
+
+    "Updated Time": {
+      date: {
+        start: new Date(),
+      },
+    },
   };
+
+  if (isCreate) {
+    request["Created Time"] = {
+      date: {
+        start: new Date(),
+      },
+    };
+  }
+
+  return request;
 };
 
 const generateApplicationRequest = (
@@ -251,7 +267,7 @@ const generateApplicationRequest = (
   userId: string,
   fileName: string,
   data: FormData
-) => {
+): any => {
   return {
     Jobs: {
       relation: [{ id: jobId ?? "" }],
@@ -296,14 +312,10 @@ const generateApplicationRequest = (
         },
       ],
     },
-    "Accept Data Transfer Abroad": {
-      checkbox: data.acceptDataTransferAbroad,
-    },
-    "Accept Data Sharing": {
-      checkbox: data.acceptDataSharing,
-    },
-    "Under Take Informing Permits": {
-      checkbox: data.undertakeInformingPermits,
+    "Created Time": {
+      date: {
+        start: new Date(),
+      },
     },
   };
 };
