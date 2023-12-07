@@ -5,7 +5,6 @@ import type {
 } from "@remix-run/node";
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
 import { useActionData, useLoaderData } from "@remix-run/react";
-import validateForm, { getFileExtension } from "util/validation";
 
 import { Client } from "@notionhq/client";
 import type { FormData } from "util/validation";
@@ -14,8 +13,11 @@ import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobD
 import React from "react";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { getFileExtension } from "util/getFileExtension";
 import { redirect } from "@remix-run/node";
 import { uuid } from "uuidv4";
+import { validationError } from "remix-validated-form";
+import validator from "../../util/validator";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -92,11 +94,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     jobTitle: String(formData.get("jobTitle")),
   };
 
-  const errors = await validateForm(data);
+  const validateData = await validator.validate(formData);
 
-  if (Object.keys(errors).length > 0) {
-    return errors;
-  }
+  if (validateData.error) return validationError(validateData.error);
 
   const randomFileName = `${uuid()}-${params.jobId}.${getFileExtension(
     data?.cv?.name ?? ""
@@ -310,7 +310,7 @@ const generateApplicationRequest = (
 
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
-  const errors = useActionData<typeof action>();
+  const actionData = useActionData<typeof action>();
 
   return (
     <React.Fragment>
@@ -319,6 +319,7 @@ export default function JobApply() {
         <div className="apply-form-component">
           <div className="container">
             <form
+              noValidate
               className="simple_form new_candidate"
               method="post"
               encType="multipart/form-data"
@@ -338,7 +339,7 @@ export default function JobApply() {
                 <div className="col-md-7">
                   <div
                     className={`form-group string required candidate_name ${
-                      errors?.name && "has-error"
+                      actionData?.fieldErrors?.name && "has-error"
                     }`}
                   >
                     <label
@@ -355,10 +356,15 @@ export default function JobApply() {
                       type="text"
                       name="name"
                     />
+                    {actionData?.fieldErrors?.name && (
+                      <span className="help-block">
+                        {actionData?.fieldErrors?.name}
+                      </span>
+                    )}
                   </div>
                   <div
                     className={`form-group email required candidate_email ${
-                      errors?.email && "has-error"
+                      actionData?.fieldErrors?.email && "has-error"
                     }`}
                   >
                     <label
@@ -375,10 +381,15 @@ export default function JobApply() {
                       type="email"
                       name="email"
                     />
+                    {actionData?.fieldErrors?.email && (
+                      <span className="help-block">
+                        {actionData?.fieldErrors?.email}
+                      </span>
+                    )}
                   </div>
                   <div
                     className={`form-group tel required candidate_phone ${
-                      errors?.phone && "has-error"
+                      actionData?.fieldErrors?.phone && "has-error"
                     }`}
                   >
                     <label
@@ -391,11 +402,15 @@ export default function JobApply() {
                       className="string tel required form-control form-control"
                       required
                       aria-required="true"
-                      placeholder="Example: 05555555555"
-                      type="number"
-                      pattern=".{10,10}"
+                      placeholder="Example: +909999999999"
+                      type="text"
                       name="phone"
                     />
+                    {actionData?.fieldErrors?.phone && (
+                      <span className="help-block">
+                        {actionData?.fieldErrors?.phone}
+                      </span>
+                    )}
                   </div>
                 </div>
               </section>
@@ -410,7 +425,7 @@ export default function JobApply() {
                 <div className="col-md-7">
                   <div
                     className={`form-group file_preview required candidate_cv ${
-                      errors?.cv && "has-error"
+                      actionData?.fieldErrors?.cv && "has-error"
                     }`}
                   >
                     <div className="file-preview">
@@ -433,9 +448,19 @@ export default function JobApply() {
                         name="cv"
                       />
                     </div>
-                    <span className="help-block">
+                    <span
+                      className={`help-block ${
+                        actionData?.fieldErrors?.cv && "has-error"
+                      }`}
+                    >
                       Accepted files: DOC, DOCX, PDF, ODT, RTF, JPEG and PNG up
-                      to 10MB.
+                      to 10MB
+                      {actionData?.fieldErrors?.cv && (
+                        <>
+                          <br />
+                          <span>{actionData?.fieldErrors?.cv}</span>
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -464,7 +489,7 @@ export default function JobApply() {
                   <div className="question string_type">
                     <div
                       className={`form-group string required candidate_open_question_answers_content ${
-                        errors?.birthYear && "has-error"
+                        actionData?.fieldErrors?.birthYear && "has-error"
                       }`}
                     >
                       <label
@@ -480,13 +505,18 @@ export default function JobApply() {
                         type="text"
                         name="birthYear"
                       />
+                      {actionData?.fieldErrors?.birthYear && (
+                        <span className="help-block">
+                          {actionData?.fieldErrors?.birthYear}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="question string_type">
                     <div
-                      className={`form-group string required candidate_open_question_answers_content ${
-                        errors?.city && "has-error"
+                      className={`form-group string required candidate_open_question_answers_content  ${
+                        actionData?.fieldErrors?.city && "has-error"
                       }`}
                     >
                       <label
@@ -502,6 +532,11 @@ export default function JobApply() {
                         type="text"
                         name="city"
                       />
+                      {actionData?.fieldErrors?.city && (
+                        <span className="help-block">
+                          {actionData?.fieldErrors?.city}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -792,7 +827,12 @@ export default function JobApply() {
               <section>
                 <div id="legal-questions" className="col-md-offset-3 col-md-7">
                   <div className="question legal_type">
-                    <div className="form-group boolean optional candidate_open_question_answers_flag">
+                    <div
+                      className={`form-group boolean optional candidate_open_question_answers_flag ${
+                        actionData?.fieldErrors?.acceptDataTransferAbroad &&
+                        "has-error"
+                      }`}
+                    >
                       <label
                         className="boolean optional control-label checkbox"
                         htmlFor="acceptDataTransferAbroad"
@@ -822,13 +862,27 @@ export default function JobApply() {
                             hosting, program, cloud computing), security, server
                             service, e-mail, and online meeting).
                           </p>
+                          {actionData?.fieldErrors
+                            ?.acceptDataTransferAbroad && (
+                            <span className="help-block">
+                              {
+                                actionData?.fieldErrors
+                                  ?.acceptDataTransferAbroad
+                              }
+                            </span>
+                          )}
                         </div>
                       </label>
                     </div>
                   </div>
 
                   <div className="question legal_type">
-                    <div className="form-group boolean optional candidate_open_question_answers_flag">
+                    <div
+                      className={`form-group boolean optional candidate_open_question_answers_flag ${
+                        actionData?.fieldErrors?.acceptDataSharing &&
+                        "has-error"
+                      }`}
+                    >
                       <label
                         className="boolean optional control-label checkbox"
                         htmlFor="acceptDataSharing"
@@ -854,13 +908,23 @@ export default function JobApply() {
                             data is shared with the persons I stated as
                             references.
                           </p>
+                          {actionData?.fieldErrors?.acceptDataSharing && (
+                            <span className="help-block">
+                              {actionData?.fieldErrors?.acceptDataSharing}
+                            </span>
+                          )}
                         </div>
                       </label>
                     </div>
                   </div>
 
                   <div className="question legal_type">
-                    <div className="form-group boolean optional candidate_open_question_answers_flag">
+                    <div
+                      className={`form-group boolean optional candidate_open_question_answers_flag  ${
+                        actionData?.fieldErrors?.undertakeInformingPermits &&
+                        "has-error"
+                      }`}
+                    >
                       <label
                         className="boolean optional control-label checkbox"
                         htmlFor="undertakeInformingPermits"
@@ -881,6 +945,15 @@ export default function JobApply() {
                             as references and for sharing the said personal data
                             with your Company.
                           </p>
+                          {actionData?.fieldErrors
+                            ?.undertakeInformingPermits && (
+                            <span className="help-block">
+                              {
+                                actionData?.fieldErrors
+                                  ?.undertakeInformingPermits
+                              }
+                            </span>
+                          )}
                         </div>
                       </label>
                     </div>
