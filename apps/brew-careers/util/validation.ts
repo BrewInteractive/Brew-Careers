@@ -6,9 +6,6 @@ export interface FormData {
   birthYear: string;
   city: string;
   coverLetter: string;
-  acceptDataTransferAbroad: boolean;
-  acceptDataSharing: boolean;
-  undertakeInformingPermits: boolean;
   jobTitle: string;
 }
 

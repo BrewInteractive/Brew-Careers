@@ -5,14 +5,17 @@ import { Client } from "@notionhq/client";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import React from "react";
+import getEnv from "util/enviroment";
 import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const env = getEnv();
+
   return [
-    { title: `${data.title}- ${process.env.COMPANY}` },
+    { title: `${data.title}- ${env.COMPANY}` },
     {
       name: "description",
-      content: `${data.title}- ${process.env.COMPANY} - Applied successfully`,
+      content: `${data.title}- ${env.COMPANY} - Applied successfully`,
     },
   ];
 };
@@ -37,6 +40,7 @@ export let loader: LoaderFunction = async ({
     throw new Error("Failed to load data");
   }
 };
+
 export default function Applied() {
   const job = useLoaderData<JobsPageProps>();
 

@@ -1,5 +1,13 @@
 import { type LinksFunction, type MetaFunction } from "@remix-run/node";
-import { LiveReload, Meta, Outlet, ScrollRestoration } from "@remix-run/react";
+import {
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+  useOutletContext,
+} from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
 
@@ -7,21 +15,20 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: `Careers - Jobs - ${process.env.COMPANY}` },
-    {
-      name: "description",
-      content: `Careers - Jobs - ${process.env.COMPANY}`,
-    },
-  ];
+export let loader = async () => {
+  return {
+    env: process.env,
+  };
 };
 
 export default function App() {
+  const process = useLoaderData<any>();
+
   return (
     <html lang="en">
       <head>
         <Meta />
+        <title>{`Careers - Jobs - ${process.env.COMPANY}`}</title>
         <meta charSet="utf-8" />
         <meta content="IE=Edge,chrome=1" httpEquiv="X-UA-Compatible" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -69,11 +76,17 @@ export default function App() {
         <script src="/js/rt_app.js"></script>
         <script src="/js/careers.js"></script>
         <script src="/js/errors_handler.js"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(process.env)}`,
+          }}
+        />
       </head>
       <body>
         <Outlet />
         <ScrollRestoration />
         <LiveReload />
+        <Scripts />
       </body>
     </html>
   );
