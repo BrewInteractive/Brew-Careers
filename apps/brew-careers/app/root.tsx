@@ -66,9 +66,15 @@ export default function App() {
           href="/css/bootstrap.css"
           data-company-css="true"
         />
+
         <script src="/js/rt_app.js"></script>
         <script src="/js/careers.js"></script>
         <script src="/js/errors_handler.js"></script>
+        <script
+          defer
+          data-domain={process.env.WEBSITE_DOMAIN}
+          src="https://plausible.io/js/script.js"
+        ></script>
       </head>
       <body>
         <Outlet />
