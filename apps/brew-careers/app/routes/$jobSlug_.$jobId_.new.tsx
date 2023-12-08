@@ -4,13 +4,13 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
+import React, { useEffect, useState } from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 
 import { Client } from "@notionhq/client";
 import type { FormData } from "util/validation";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
-import React from "react";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import type { ValidationSchema } from "../../util/validator";
@@ -121,10 +121,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
     }
   } else {
-    throw new Error(`An error has occurred when file upload`);
+    return { error: `An error has occurred when file upload` };
   }
 
-  return null;
+  return { error: `An error has occurred when save form` };
 }
 
 const createApplication = (
@@ -164,14 +164,14 @@ const createUser = (notion: Client, data: FormData) => {
     parent: {
       database_id: process.env.USER_DATABASE_ID ?? "",
     },
-    properties: generateUserRequest(data),
+    properties: generateUserRequest(data, true),
   });
 };
 
 const updateUser = (notion: Client, userId: string, data: FormData) => {
   return notion.pages.update({
     page_id: userId,
-    properties: generateUserRequest(data),
+    properties: generateUserRequest(data, false),
   });
 };
 
@@ -198,8 +198,8 @@ const updateOrCreateUser = async (notion: Client, data: FormData) => {
   }
 };
 
-const generateUserRequest = (data: FormData) => {
-  return {
+const generateUserRequest = (data: FormData, isCreate: boolean): any => {
+  const request: any = {
     Name: {
       title: [
         {
@@ -239,7 +239,23 @@ const generateUserRequest = (data: FormData) => {
         },
       ],
     },
+
+    "Updated Time": {
+      date: {
+        start: new Date(),
+      },
+    },
   };
+
+  if (isCreate) {
+    request["Created Time"] = {
+      date: {
+        start: new Date(),
+      },
+    };
+  }
+
+  return request;
 };
 
 const generateApplicationRequest = (
@@ -247,7 +263,7 @@ const generateApplicationRequest = (
   userId: string,
   fileName: string,
   data: FormData
-) => {
+): any => {
   return {
     Jobs: {
       relation: [{ id: jobId ?? "" }],
@@ -292,14 +308,26 @@ const generateApplicationRequest = (
         },
       ],
     },
+    "Created Time": {
+      date: {
+        start: new Date(),
+      },
+    },
   };
 };
 
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
   const env = getEnv();
-
   const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.state === "idle") {
+      setIsButtonDisabled(false);
+    }
+  }, [fetcher]);
+
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const {
     register,
@@ -308,11 +336,14 @@ export default function JobApply() {
   } = useForm<ValidationSchema>({ resolver: zodResolver(validationSchema) });
 
   const onSubmit = async (data: any) => {
-    console.log(data);
+    setIsButtonDisabled(true);
 
-    fetcher.submit(data, {
-      method: "POST",
-    });
+    fetcher.submit(
+      { ...data, jobTitle: job.title },
+      {
+        method: "POST",
+      }
+    );
   };
 
   return (
@@ -328,13 +359,6 @@ export default function JobApply() {
               encType="multipart/form-data"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <input
-                hidden={true}
-                name="jobTitle"
-                type="text"
-                value={job.title}
-              />
-
               <section>
                 <div className="col-md-3 description">
                   <h3>My information</h3>
@@ -475,9 +499,9 @@ export default function JobApply() {
                 <div className="col-md-7">
                   <div className="form-group text optional candidate_cover_letter">
                     <textarea
+                      {...register("coverLetter")}
                       rows={5}
                       className="text optional form-control"
-                      name="coverLetter"
                     ></textarea>
                   </div>
                 </div>
@@ -965,7 +989,10 @@ export default function JobApply() {
                 </div>
               </section>
               <section className="closing">
-                <button className="btn btn-lg btn-primary">
+                <button
+                  className="btn btn-lg btn-primary"
+                  disabled={isButtonDisabled}
+                >
                   Submit application
                 </button>
               </section>

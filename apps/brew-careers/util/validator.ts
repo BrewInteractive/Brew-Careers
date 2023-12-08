@@ -32,7 +32,6 @@ const validationSchema = z.object({
     .any()
     .refine(
       (files) => {
-        console.log("file1", files);
         return files?.[0].name !== "";
       },
       {
@@ -41,7 +40,6 @@ const validationSchema = z.object({
     )
     .refine(
       (files) => {
-        console.log("file2", files);
         return files?.[0]?.size <= maxFileSize;
       },
       {
@@ -50,8 +48,6 @@ const validationSchema = z.object({
     )
     .refine(
       (files) => {
-        console.log("file3", files?.[0]?.type);
-        console.log("supportedFileTypes", supportedFileTypes);
         return (
           supportedFileTypes.some(
             (fileType) => files?.[0]?.type.includes(fileType)
@@ -62,6 +58,10 @@ const validationSchema = z.object({
         message: `${supportedFileTypes.join(", ")} files are accepted`,
       }
     ),
+
+  coverLetter: z
+    .string()
+    .max(2000, { message: "Please enter max 2000 character." }),
   birthYear: z.string().refine((value) => yearRegex.test(value), {
     message: "Please use a valid birth year format (YYYY)",
   }),
