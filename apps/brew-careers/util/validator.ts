@@ -5,7 +5,16 @@ import { z } from "zod";
 const maxFileSize = 10 * 1024 * 1024; // 10 MB
 
 // file kontrolü (desteklenen dosya türleri)
-const supportedFileTypes = ["doc", "docx", "pdf", "odt", "rtf", "jpeg", "png"];
+const supportedFileTypes = [
+  "doc",
+  "docx",
+  "pdf",
+  "odt",
+  "jpeg",
+  "jpg",
+  "rtf",
+  "png",
+];
 
 // Doğum yılı formatını kontrol etmek için bir regex
 const yearRegex = /^\d{4}$/;
@@ -22,29 +31,58 @@ const validator = withZod(
         "Please enter a valid phone number in international format (e.g., +909999999999)",
     }),
     cv: z
-      .any()
-      .refine((files) => files?.length == 1, "cv is required.")
+      .instanceof(File)
       .refine(
-        (files) => files?.[0]?.size <= maxFileSize,
-        `Max file size is 10MB.`
+        (file) => {
+          return file.name !== "";
+        },
+        {
+          message: "cv is required.",
+        }
       )
+      .refine((file) => file?.size <= maxFileSize, {
+        message: "Max file size is 10MB.",
+      })
       .refine(
-        (files) => supportedFileTypes.includes(files?.[0]?.type),
-        ".jpg, .jpeg, .png and .webp files are accepted."
+        (file) => {
+          return (
+            supportedFileTypes.some(
+              (fileType) => file?.type.includes(fileType)
+            ) === true
+          );
+        },
+        {
+          message: `${supportedFileTypes.join(", ")} files are accepted`,
+        }
       ),
     birthYear: z.string().refine((value) => yearRegex.test(value), {
       message: "Please use a valid birth year format (YYYY)",
     }),
     city: z.string().min(1, { message: "City is required" }),
-    acceptDataTransferAbroad: z.literal(true, {
-      errorMap: () => ({ message: "You must accept Condition" }),
-    }),
-    acceptDataSharing: z.literal(true, {
-      errorMap: () => ({ message: "You must accept Condition" }),
-    }),
-    undertakeInformingPermits: z.literal(true, {
-      errorMap: () => ({ message: "You must accept Condition" }),
-    }),
+    acceptDataTransferAbroad: z.any().refine(
+      (checked) => {
+        return checked === "on";
+      },
+      {
+        message: "You must accept Condition",
+      }
+    ),
+    acceptDataSharing: z.any().refine(
+      (checked) => {
+        return checked === "on";
+      },
+      {
+        message: "You must accept Condition",
+      }
+    ),
+    undertakeInformingPermits: z.any().refine(
+      (checked) => {
+        return checked === "on";
+      },
+      {
+        message: "You must accept Condition",
+      }
+    ),
   })
 );
 
