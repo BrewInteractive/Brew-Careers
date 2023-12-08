@@ -4,25 +4,32 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
-import { useActionData, useLoaderData } from "@remix-run/react";
-import validateForm, { getFileExtension } from "util/validation";
+import React, { useEffect, useState } from "react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 
 import { Client } from "@notionhq/client";
 import type { FormData } from "util/validation";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
-import React from "react";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import type { ValidationSchema } from "../../util/validator";
+import getEnv from "util/enviroment";
+import { getFileExtension } from "util/getFileExtension";
 import { redirect } from "@remix-run/node";
+import { useForm } from "react-hook-form";
 import { uuid } from "uuidv4";
+import validationSchema from "../../util/validator";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const env = getEnv();
+
   return [
-    { title: `${data.title}- ${process.env.COMPANY}` },
+    { title: `${data.title}- ${env.COMPANY}` },
     {
       name: "description",
-      content: `${data.title}- ${process.env.COMPANY} - Apply for this job`,
+      content: `${data.title}- ${env.COMPANY} - Apply for this job`,
     },
   ];
 };
@@ -83,20 +90,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     city: String(formData.get("city")),
     cv: formData.get("cv") as File,
     phone: String(formData.get("phone")),
-    acceptDataTransferAbroad: Boolean(formData.get("acceptDataTransferAbroad")),
-    acceptDataSharing: Boolean(formData.get("acceptDataSharing")),
     coverLetter: String(formData.get("coverLetter")),
-    undertakeInformingPermits: Boolean(
-      formData.get("undertakeInformingPermits")
-    ),
     jobTitle: String(formData.get("jobTitle")),
   };
-
-  const errors = await validateForm(data);
-
-  if (Object.keys(errors).length > 0) {
-    return errors;
-  }
 
   const randomFileName = `${uuid()}-${params.jobId}.${getFileExtension(
     data?.cv?.name ?? ""
@@ -125,10 +121,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
     }
   } else {
-    throw new Error(`An error has occurred when file upload`);
+    return { error: `An error has occurred when file upload` };
   }
 
-  return null;
+  return { error: `An error has occurred when save form` };
 }
 
 const createApplication = (
@@ -322,7 +318,33 @@ const generateApplicationRequest = (
 
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
-  const errors = useActionData<typeof action>();
+  const env = getEnv();
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.state === "idle") {
+      setIsButtonDisabled(false);
+    }
+  }, [fetcher]);
+
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ValidationSchema>({ resolver: zodResolver(validationSchema) });
+
+  const onSubmit = async (data: any) => {
+    setIsButtonDisabled(true);
+
+    fetcher.submit(
+      { ...data, jobTitle: job.title },
+      {
+        method: "POST",
+      }
+    );
+  };
 
   return (
     <React.Fragment>
@@ -331,17 +353,12 @@ export default function JobApply() {
         <div className="apply-form-component">
           <div className="container">
             <form
+              noValidate
               className="simple_form new_candidate"
               method="post"
               encType="multipart/form-data"
+              onSubmit={handleSubmit(onSubmit)}
             >
-              <input
-                hidden={true}
-                name="jobTitle"
-                type="text"
-                value={job.title}
-              />
-
               <section>
                 <div className="col-md-3 description">
                   <h3>My information</h3>
@@ -360,13 +377,18 @@ export default function JobApply() {
                       Full name <abbr title="required">*</abbr>
                     </label>
                     <input
+                      {...register("name")}
                       className="string required form-control"
                       required
                       aria-required="true"
                       placeholder="Your full name"
                       type="text"
-                      name="name"
                     />
+                    {errors?.name && (
+                      <span className="help-block">
+                        {errors?.name?.message}
+                      </span>
+                    )}
                   </div>
                   <div
                     className={`form-group email required candidate_email ${
@@ -380,13 +402,18 @@ export default function JobApply() {
                       Email address <abbr title="required">*</abbr>
                     </label>
                     <input
+                      {...register("email")}
                       className="string email required form-control form-control"
                       required
                       aria-required="true"
                       placeholder="Your email address"
                       type="email"
-                      name="email"
                     />
+                    {errors?.email && (
+                      <span className="help-block">
+                        {errors?.email?.message}
+                      </span>
+                    )}
                   </div>
                   <div
                     className={`form-group tel required candidate_phone ${
@@ -400,14 +427,18 @@ export default function JobApply() {
                       Phone number <abbr title="required">*</abbr>
                     </label>
                     <input
+                      {...register("phone")}
                       className="string tel required form-control form-control"
                       required
                       aria-required="true"
-                      placeholder="Example: 05555555555"
-                      type="number"
-                      pattern=".{10,10}"
-                      name="phone"
+                      placeholder="Example: +909999999999"
+                      type="text"
                     />
+                    {errors?.phone && (
+                      <span className="help-block">
+                        {errors?.phone?.message}
+                      </span>
+                    )}
                   </div>
                 </div>
               </section>
@@ -437,17 +468,25 @@ export default function JobApply() {
                     </button>
                     <div className="hidden-field">
                       <input
+                        {...register("cv")}
                         className="file_preview required select-file"
-                        accept=".doc,.docx,.pdf,.png,.jpg"
+                        accept=".doc,.docx,.pdf,.png,.jpg,.mp4"
                         required
                         aria-required="true"
                         type="file"
-                        name="cv"
                       />
                     </div>
-                    <span className="help-block">
-                      Accepted files: DOC, DOCX, PDF, ODT, RTF, JPEG and PNG up
-                      to 10MB.
+                    <span className={`help-block ${errors?.cv && "has-error"}`}>
+                      <span className={`help-block`}>
+                        Accepted files: DOC, DOCX, PDF, ODT, RTF, JPEG and PNG
+                        up to 10MB
+                      </span>
+                      {errors?.cv && (
+                        <>
+                          <br />
+                          <span>{errors?.cv?.message as string}</span>
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -460,9 +499,9 @@ export default function JobApply() {
                 <div className="col-md-7">
                   <div className="form-group text optional candidate_cover_letter">
                     <textarea
+                      {...register("coverLetter")}
                       rows={5}
                       className="text optional form-control"
-                      name="coverLetter"
                     ></textarea>
                   </div>
                 </div>
@@ -486,18 +525,23 @@ export default function JobApply() {
                         Year of birth <abbr title="required">*</abbr>
                       </label>
                       <input
+                        {...register("birthYear")}
                         className="string required form-control"
                         required
                         aria-required="true"
                         type="text"
-                        name="birthYear"
                       />
+                      {errors?.birthYear && (
+                        <span className="help-block">
+                          {errors?.birthYear?.message}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="question string_type">
                     <div
-                      className={`form-group string required candidate_open_question_answers_content ${
+                      className={`form-group string required candidate_open_question_answers_content  ${
                         errors?.city && "has-error"
                       }`}
                     >
@@ -508,12 +552,17 @@ export default function JobApply() {
                         City of residence <abbr title="required">*</abbr>
                       </label>
                       <input
+                        {...register("city")}
                         className="string required form-control"
                         required
                         aria-required="true"
                         type="text"
-                        name="city"
                       />
+                      {errors?.city && (
+                        <span className="help-block">
+                          {errors?.city?.message}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -774,8 +823,8 @@ export default function JobApply() {
                         </strong>
                       </p>
                       <p>
-                        <a href={`mailto:${process.env.COMPANY_WEBSITE_EMAIL}`}>
-                          {process.env.COMPANY_WEBSITE_EMAIL}
+                        <a href={`mailto:${env.COMPANY_WEBSITE_EMAIL}`}>
+                          {env.COMPANY_WEBSITE_EMAIL}
                         </a>
                       </p>
                       <p>
@@ -804,15 +853,19 @@ export default function JobApply() {
               <section>
                 <div id="legal-questions" className="col-md-offset-3 col-md-7">
                   <div className="question legal_type">
-                    <div className="form-group boolean optional candidate_open_question_answers_flag">
+                    <div
+                      className={`form-group boolean optional candidate_open_question_answers_flag ${
+                        errors?.acceptDataTransferAbroad && "has-error"
+                      }`}
+                    >
                       <label
-                        className="boolean optional control-label checkbox"
+                        className={`boolean optional control-label checkbox`}
                         htmlFor="acceptDataTransferAbroad"
                       >
                         <input
+                          {...register("acceptDataTransferAbroad")}
                           className="boolean optional"
                           type="checkbox"
-                          value="1"
                           name="acceptDataTransferAbroad"
                           id="acceptDataTransferAbroad"
                           required
@@ -834,21 +887,33 @@ export default function JobApply() {
                             hosting, program, cloud computing), security, server
                             service, e-mail, and online meeting).
                           </p>
+                          {errors?.acceptDataTransferAbroad && (
+                            <span className="help-block">
+                              {
+                                errors?.acceptDataTransferAbroad
+                                  ?.message as string
+                              }
+                            </span>
+                          )}
                         </div>
                       </label>
                     </div>
                   </div>
 
                   <div className="question legal_type">
-                    <div className="form-group boolean optional candidate_open_question_answers_flag">
+                    <div
+                      className={`form-group boolean optional candidate_open_question_answers_flag ${
+                        errors?.acceptDataSharing && "has-error"
+                      }`}
+                    >
                       <label
-                        className="boolean optional control-label checkbox"
+                        className={`boolean optional control-label checkbox`}
                         htmlFor="acceptDataSharing"
                       >
                         <input
+                          {...register("acceptDataSharing")}
                           className="boolean optional"
                           type="checkbox"
-                          value="1"
                           name="acceptDataSharing"
                           id="acceptDataSharing"
                           required
@@ -866,22 +931,30 @@ export default function JobApply() {
                             data is shared with the persons I stated as
                             references.
                           </p>
+                          {errors?.acceptDataSharing && (
+                            <span className="help-block">
+                              {errors?.acceptDataSharing?.message as string}
+                            </span>
+                          )}
                         </div>
                       </label>
                     </div>
                   </div>
 
                   <div className="question legal_type">
-                    <div className="form-group boolean optional candidate_open_question_answers_flag">
+                    <div
+                      className={`form-group boolean optional candidate_open_question_answers_flag  ${
+                        errors?.undertakeInformingPermits && "has-error"
+                      }`}
+                    >
                       <label
-                        className="boolean optional control-label checkbox"
+                        className={`boolean optional control-label checkbox`}
                         htmlFor="undertakeInformingPermits"
                       >
                         <input
+                          {...register("undertakeInformingPermits")}
                           className="boolean optional"
                           type="checkbox"
-                          value="1"
-                          name="undertakeInformingPermits"
                           id="undertakeInformingPermits"
                           required
                         />
@@ -893,6 +966,14 @@ export default function JobApply() {
                             as references and for sharing the said personal data
                             with your Company.
                           </p>
+                          {errors?.undertakeInformingPermits && (
+                            <span className="help-block">
+                              {
+                                errors?.undertakeInformingPermits
+                                  .message as string
+                              }
+                            </span>
+                          )}
                         </div>
                       </label>
                     </div>
@@ -908,7 +989,10 @@ export default function JobApply() {
                 </div>
               </section>
               <section className="closing">
-                <button className="btn btn-lg btn-primary" type="submit">
+                <button
+                  className="btn btn-lg btn-primary"
+                  disabled={isButtonDisabled}
+                >
                   Submit application
                 </button>
               </section>

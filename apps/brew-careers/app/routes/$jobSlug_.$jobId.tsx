@@ -3,6 +3,7 @@ import type {
   JobDetailProps,
 } from "~/lib/interfaces/job.detail";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { useLoaderData, useOutletContext } from "@remix-run/react";
 
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable jsx-a11y/anchor-is-valid */
@@ -11,15 +12,17 @@ import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import type { JobResponseResults } from "~/lib/interfaces/job";
 import React from "react";
+import getEnv from "util/enviroment";
 import notionBlocksToHtml from "util/notionBlocksToHtml/notionBlocksToHtml";
-import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const env = getEnv();
+
   return [
-    { title: `${data.job.title}- ${process.env.COMPANY}` },
+    { title: `${data.job.title}- ${env.COMPANY}` },
     {
       name: "description",
-      content: `${data.job.title}- ${process.env.COMPANY}`,
+      content: `${data.job.title}- ${env.COMPANY}`,
     },
   ];
 };
@@ -57,6 +60,7 @@ export let loader: LoaderFunction = async ({
 
 export default function BusinessAnalyst() {
   const jobsDetail = useLoaderData<JobDetailProps>();
+  const env = getEnv();
 
   return (
     <React.Fragment>
@@ -112,7 +116,7 @@ export default function BusinessAnalyst() {
                         >
                           <a
                             className="popup"
-                            href={`https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${process.env.COMPANY} ${process.env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}`}
+                            href={`https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${env.COMPANY} ${env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}`}
                           >
                             <span className="rrssb-icon">
                               <svg
@@ -133,7 +137,7 @@ export default function BusinessAnalyst() {
                         >
                           <a
                             className="popup"
-                            href={`https://www.facebook.com/sharer/sharer.php?u=${process.env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}`}
+                            href={`https://www.facebook.com/sharer/sharer.php?u=${env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}`}
                           >
                             <span className="rrssb-icon">
                               <svg
@@ -154,7 +158,7 @@ export default function BusinessAnalyst() {
                         >
                           <a
                             className="popup"
-                            href={`'https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${process.env.COMPANY} ${process.env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}'`}
+                            href={`'https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${env.COMPANY} ${env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}'`}
                           >
                             <span className="rrssb-icon">
                               <svg

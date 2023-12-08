@@ -1,5 +1,12 @@
-import { type LinksFunction, type MetaFunction } from "@remix-run/node";
-import { LiveReload, Meta, Outlet, ScrollRestoration } from "@remix-run/react";
+import { type LinksFunction } from "@remix-run/node";
+import {
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+} from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
 
@@ -7,21 +14,20 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: `Careers - Jobs - ${process.env.COMPANY}` },
-    {
-      name: "description",
-      content: `Careers - Jobs - ${process.env.COMPANY}`,
-    },
-  ];
+export let loader = async () => {
+  return {
+    env: process.env,
+  };
 };
 
 export default function App() {
+  const process = useLoaderData<any>();
+
   return (
     <html lang="en">
       <head>
         <Meta />
+        <title>{`Careers - Jobs - ${process.env.COMPANY}`}</title>
         <meta charSet="utf-8" />
         <meta content="IE=Edge,chrome=1" httpEquiv="X-UA-Compatible" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -75,11 +81,28 @@ export default function App() {
           data-domain={process.env.WEBSITE_DOMAIN}
           src="https://plausible.io/js/script.js"
         ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify({
+              WEBSITE_URL: process.env.WEBSITE_URL,
+              COMPANY: process.env.COMPANY,
+              COMPANY_WEBSITE: process.env.COMPANY_WEBSITE,
+              COMPANY_WEBSITE_EMAIL: process.env.COMPANY_WEBSITE_EMAIL,
+              COMPANY_LINKEDIN_URL: process.env.COMPANY_LINKEDIN_URL,
+              COMPANY_TWITTER_URL: process.env.COMPANY_TWITTER_URL,
+              COMPANY_INSTAGRAM_URL: process.env.COMPANY_INSTAGRAM_URL,
+              COMPANY_SLOGAN_1: process.env.COMPANY_SLOGAN_1,
+              COMPANY_SLOGAN_2: process.env.COMPANY_SLOGAN_2,
+              DIGITALOCEAN_FILE_URL: process.env.DIGITALOCEAN_FILE_URL,
+            })}`,
+          }}
+        />
       </head>
       <body>
         <Outlet />
         <ScrollRestoration />
         <LiveReload />
+        <Scripts />
       </body>
     </html>
   );

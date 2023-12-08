@@ -1,6 +1,9 @@
 import type IHeader from "./header.types";
+import getEnv from "util/enviroment";
 
 const Header = ({ info }: IHeader) => {
+  const env = getEnv();
+
   return (
     <div className="header-component component" id="section-112287">
       <div
@@ -21,8 +24,8 @@ const Header = ({ info }: IHeader) => {
             <h1 className="brand">
               <a href="/">
                 <img
-                  title={`Careers - Jobs - ${process.env.COMPANY}`}
-                  alt={`Careers - Jobs - ${process.env.COMPANY}`}
+                  title={`Careers - Jobs - ${env.COMPANY}`}
+                  alt={`Careers - Jobs - ${env.COMPANY}`}
                   src="/images/logo.png"
                 />
               </a>
@@ -33,7 +36,7 @@ const Header = ({ info }: IHeader) => {
                   className="company-link btn btn-primary hidden-xs"
                   target="_blank"
                   rel="nofollow noopener noreferrer"
-                  href={process.env.COMPANY_WEBSITE}
+                  href={env.COMPANY_WEBSITE}
                 >
                   Company website
                   <i className="fa fa-arrow-circle-right"></i>
@@ -44,7 +47,7 @@ const Header = ({ info }: IHeader) => {
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={process.env.COMPANY_LINKEDIN_URL}
+                      href={env.COMPANY_LINKEDIN_URL}
                     >
                       <i className="fa fa-linkedin-square"></i>
                     </a>
@@ -54,7 +57,7 @@ const Header = ({ info }: IHeader) => {
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={process.env.COMPANY_TWITTER_URL}
+                      href={env.COMPANY_TWITTER_URL}
                     >
                       <i className="fa fa-twitter-square"></i>
                     </a>
@@ -64,7 +67,7 @@ const Header = ({ info }: IHeader) => {
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={process.env.COMPANY_INSTAGRAM_URL}
+                      href={env.COMPANY_INSTAGRAM_URL}
                     >
                       <i className="fa fa-instagram"></i>
                     </a>
