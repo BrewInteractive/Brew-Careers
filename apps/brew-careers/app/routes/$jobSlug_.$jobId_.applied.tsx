@@ -1,34 +1,41 @@
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import type { TypedResponse } from "@remix-run/node";
+import {
+  redirect,
+  type LoaderFunction,
+  type MetaFunction,
+} from "@remix-run/node";
 
 import { Client } from "@notionhq/client";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import React from "react";
-import getEnv from "util/enviroment";
 import { useLoaderData } from "@remix-run/react";
+import { COMPANY } from "~/lib/config/companyInfo";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const env = getEnv();
-
   return [
-    { title: `${data.title}- ${env.COMPANY}` },
+    { title: `${data.title}- ${COMPANY}` },
     {
       name: "description",
-      content: `${data.title}- ${env.COMPANY} - Applied successfully`,
+      content: `${data.title}- ${COMPANY} - Applied successfully`,
     },
   ];
 };
 
 export let loader: LoaderFunction = async ({
   params,
-}): Promise<JobsPageProps> => {
+}): Promise<JobsPageProps | TypedResponse<never>> => {
   try {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
     const job = (await notion.pages.retrieve({
       page_id: params.jobId ?? "",
     })) as unknown as JobResponseResults;
+
+    if (job?.properties["Published on Website"].checkbox !== true) {
+      return redirect(`/`);
+    }
 
     return {
       title: job.properties["Job Title"].title[0].plain_text,

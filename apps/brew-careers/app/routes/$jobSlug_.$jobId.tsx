@@ -2,8 +2,13 @@ import type {
   JobContentResponse,
   JobDetailProps,
 } from "~/lib/interfaces/job.detail";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { useLoaderData, useOutletContext } from "@remix-run/react";
+import type { TypedResponse } from "@remix-run/node";
+import {
+  redirect,
+  type LoaderFunction,
+  type MetaFunction,
+} from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable jsx-a11y/anchor-is-valid */
@@ -12,24 +17,23 @@ import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import type { JobResponseResults } from "~/lib/interfaces/job";
 import React from "react";
-import getEnv from "util/enviroment";
 import notionBlocksToHtml from "util/notionBlocksToHtml/notionBlocksToHtml";
+import { COMPANY } from "~/lib/config/companyInfo";
+import getEnv from "util/enviroment";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const env = getEnv();
-
   return [
-    { title: `${data.job.title}- ${env.COMPANY}` },
+    { title: `${data.job.title}- ${COMPANY}` },
     {
       name: "description",
-      content: `${data.job.title}- ${env.COMPANY}`,
+      content: `${data.job.title}- ${COMPANY}`,
     },
   ];
 };
 
 export let loader: LoaderFunction = async ({
   params,
-}): Promise<JobDetailProps> => {
+}): Promise<JobDetailProps | TypedResponse<never>> => {
   try {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -41,6 +45,10 @@ export let loader: LoaderFunction = async ({
     const job = (await notion.pages.retrieve({
       page_id: params.jobId ?? "",
     })) as unknown as JobResponseResults;
+
+    if (job?.properties["Published on Website"].checkbox !== true) {
+      return redirect(`/`);
+    }
 
     const jobsDetail = {
       job: {
@@ -116,7 +124,7 @@ export default function BusinessAnalyst() {
                         >
                           <a
                             className="popup"
-                            href={`https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${env.COMPANY} ${env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}`}
+                            href={`https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${COMPANY} ${env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}`}
                           >
                             <span className="rrssb-icon">
                               <svg
@@ -158,7 +166,7 @@ export default function BusinessAnalyst() {
                         >
                           <a
                             className="popup"
-                            href={`'https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${env.COMPANY} ${env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}'`}
+                            href={`'https://twitter.com/intent/tweet?text=${jobsDetail.job.title} - ${COMPANY} ${env.WEBSITE_URL}${jobsDetail.job.slug}/${jobsDetail.job.id}'`}
                           >
                             <span className="rrssb-icon">
                               <svg

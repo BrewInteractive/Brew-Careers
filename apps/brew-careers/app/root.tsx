@@ -9,6 +9,7 @@ import {
 } from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
+import { COMPANY } from "./lib/config/companyInfo";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
@@ -27,29 +28,23 @@ export default function App() {
     <html lang="en">
       <head>
         <Meta />
-        <title>{`Careers - Jobs - ${process.env.COMPANY}`}</title>
+        <title>{`Careers - Jobs - ${COMPANY}`}</title>
         <meta charSet="utf-8" />
         <meta content="IE=Edge,chrome=1" httpEquiv="X-UA-Compatible" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
-        <meta
-          content={`Careers - Jobs - ${process.env.COMPANY}`}
-          itemProp="description"
-        />
+        <meta content={`Careers - Jobs - ${COMPANY}`} itemProp="description" />
         <meta content="summary_large_image" name="twitter:card" />
+        <meta content={`Careers - Jobs - ${COMPANY}`} property="og:title" />
         <meta
-          content={`Careers - Jobs - ${process.env.COMPANY}`}
-          property="og:title"
-        />
-        <meta
-          content={`Careers - Jobs - ${process.env.COMPANY}`}
+          content={`Careers - Jobs - ${COMPANY}`}
           property="og:description"
         />
         <meta content="/images/share_image.png" property="og:image" />
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
         <meta content={process.env.WEBSITE_URL} property="og:url" />
-        <meta content={process.env.COMPANY} property="og:site_name" />
+        <meta content={COMPANY} property="og:site_name" />
         <meta content="website" property="og:type" />
         <link href={process.env.WEBSITE_URL} rel="canonical" />
         <meta name="csrf-param" content="authenticity_token" />
@@ -85,15 +80,7 @@ export default function App() {
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify({
               WEBSITE_URL: process.env.WEBSITE_URL,
-              COMPANY: process.env.COMPANY,
-              COMPANY_WEBSITE: process.env.COMPANY_WEBSITE,
-              COMPANY_WEBSITE_EMAIL: process.env.COMPANY_WEBSITE_EMAIL,
-              COMPANY_LINKEDIN_URL: process.env.COMPANY_LINKEDIN_URL,
-              COMPANY_TWITTER_URL: process.env.COMPANY_TWITTER_URL,
-              COMPANY_INSTAGRAM_URL: process.env.COMPANY_INSTAGRAM_URL,
-              COMPANY_SLOGAN_1: process.env.COMPANY_SLOGAN_1,
-              COMPANY_SLOGAN_2: process.env.COMPANY_SLOGAN_2,
-              DIGITALOCEAN_FILE_URL: process.env.DIGITALOCEAN_FILE_URL,
+              STORAGE_FILE_URL: process.env.STORAGE_FILE_URL,
             })}`,
           }}
         />

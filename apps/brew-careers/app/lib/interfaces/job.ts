@@ -10,6 +10,9 @@ export interface Properties {
   Tags: TagsProperties;
   Slug: SlugProperties;
   "Job Title": JobProperties;
+  "Published on Website": {
+    checkbox: boolean;
+  };
 }
 export interface TagsProperties {
   multi_select: [{ name: string }];

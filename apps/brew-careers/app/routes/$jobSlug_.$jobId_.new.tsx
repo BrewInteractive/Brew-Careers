@@ -2,7 +2,9 @@ import type {
   ActionFunctionArgs,
   LoaderFunction,
   MetaFunction,
+  TypedResponse,
 } from "@remix-run/node";
+import { COMPANY, COMPANY_WEBSITE_EMAIL } from "~/lib/config/companyInfo";
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
 import React, { useEffect, useState } from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
@@ -14,7 +16,6 @@ import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobD
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import type { ValidationSchema } from "../../util/validator";
-import getEnv from "util/enviroment";
 import { getFileExtension } from "util/getFileExtension";
 import { redirect } from "@remix-run/node";
 import { useForm } from "react-hook-form";
@@ -23,26 +24,28 @@ import validationSchema from "../../util/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const env = getEnv();
-
   return [
-    { title: `${data.title}- ${env.COMPANY}` },
+    { title: `${data.title}- ${COMPANY}` },
     {
       name: "description",
-      content: `${data.title}- ${env.COMPANY} - Apply for this job`,
+      content: `${data.title}- ${COMPANY} - Apply for this job`,
     },
   ];
 };
 
 export let loader: LoaderFunction = async ({
   params,
-}): Promise<JobsPageProps> => {
+}): Promise<JobsPageProps | TypedResponse<never>> => {
   try {
     const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
     const job = (await notion.pages.retrieve({
       page_id: params.jobId ?? "",
     })) as unknown as JobResponseResults;
+
+    if (job?.properties["Published on Website"].checkbox !== true) {
+      return redirect(`/`);
+    }
 
     return {
       title: job.properties["Job Title"].title[0].plain_text,
@@ -55,9 +58,10 @@ export let loader: LoaderFunction = async ({
   }
 };
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, params, context }: ActionFunctionArgs) {
   const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_ENDPOINT } = process.env;
 
+  // A
   if (!STORAGE_ENDPOINT) {
     throw new Error(`STORAGE_ENDPOINT is missing required configuration.`);
   }
@@ -288,7 +292,7 @@ const generateApplicationRequest = (
       files: [
         {
           external: {
-            url: `${process.env.DIGITALOCEAN_FILE_URL}${fileName}`,
+            url: `${process.env.STORAGE_FILE_URL}${fileName}`,
           },
           name: "CV",
         },
@@ -318,7 +322,7 @@ const generateApplicationRequest = (
 
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
-  const env = getEnv();
+
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -335,15 +339,16 @@ export default function JobApply() {
     formState: { errors },
   } = useForm<ValidationSchema>({ resolver: zodResolver(validationSchema) });
 
-  const onSubmit = async (data: any) => {
+  const handleOnSubmit = (event: any) => {
     setIsButtonDisabled(true);
-
-    fetcher.submit(
-      { ...data, jobTitle: job.title },
-      {
-        method: "POST",
-      }
-    );
+    handleSubmit(() => {
+      fetcher.submit(
+        { form: event.currentTarget.form, jobTitle: job.title },
+        {
+          method: "POST",
+        }
+      );
+    })();
   };
 
   return (
@@ -357,9 +362,11 @@ export default function JobApply() {
               className="simple_form new_candidate"
               method="post"
               encType="multipart/form-data"
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleOnSubmit}
             >
               <section>
+                <input hidden type="text" name="jobTitle" value={job.title} />
+
                 <div className="col-md-3 description">
                   <h3>My information</h3>
                   <p>Fill out the information below</p>
@@ -823,8 +830,8 @@ export default function JobApply() {
                         </strong>
                       </p>
                       <p>
-                        <a href={`mailto:${env.COMPANY_WEBSITE_EMAIL}`}>
-                          {env.COMPANY_WEBSITE_EMAIL}
+                        <a href={`mailto:${COMPANY_WEBSITE_EMAIL}`}>
+                          {COMPANY_WEBSITE_EMAIL}
                         </a>
                       </p>
                       <p>
@@ -872,7 +879,7 @@ export default function JobApply() {
                         />
                         <div>
                           <p>
-                            I have read the
+                            I have read the{" "}
                             <strong>
                               Brev Bilişim Anonim Şirketi Informative Note on
                               Personal Data
@@ -920,7 +927,7 @@ export default function JobApply() {
                         />
                         <div>
                           <p>
-                            I have read the
+                            I have read the{" "}
                             <strong>
                               Brev Bilişim Anonim Şirketi Informative Note on
                               Personal Data

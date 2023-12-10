@@ -7704,7 +7704,7 @@ form label.radio input[type="radio"] {
   position: relative;
   padding-top: 50px;
   padding-bottom: 50px;
-  border-bottom: 1px solid #e6f0f6;
+  /* border-bottom: 1px solid #e6f0f6; */
   background-color: #ffffff;
 }
 .component:hover {
@@ -7965,7 +7965,7 @@ form label.radio input[type="radio"] {
   left: 0px;
   right: 0px;
   height: 450px;
-  z-index: -1;
+  z-index: 0;
 }
 .header-cover-image .overlay {
   width: 100%;

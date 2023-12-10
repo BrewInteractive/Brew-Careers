@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { Client } from "@notionhq/client";
 import { type LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useOutletContext } from "@remix-run/react";
-import getEnv from "util/enviroment";
+import { useLoaderData } from "@remix-run/react";
 import Header from "~/components/header/header";
 import HeaderInfoHome from "~/components/headerInfoHome/headerInfoHome";
+import { COMPANY } from "~/lib/config/companyInfo";
 import type { JobsPageProps, JobsResponse } from "~/lib/interfaces/job";
 
 export let loader: LoaderFunction = async (): Promise<JobsPageProps[]> => {
@@ -13,6 +13,12 @@ export let loader: LoaderFunction = async (): Promise<JobsPageProps[]> => {
 
     const response = (await notion.databases.query({
       database_id: process.env.JOBS_DATABASE_ID ?? "",
+      filter: {
+        property: "Published on Website",
+        checkbox: {
+          equals: true,
+        },
+      },
     })) as unknown as JobsResponse;
 
     return response.results.map((job) => {
@@ -30,7 +36,6 @@ export let loader: LoaderFunction = async (): Promise<JobsPageProps[]> => {
 
 export default function Home() {
   const jobs = useLoaderData<JobsPageProps[]>();
-  const env = getEnv();
 
   return (
     <body className="offers-controller index" id="index">
@@ -39,7 +44,7 @@ export default function Home() {
 
         <div className="text-component component" id="section-112288">
           <div className="no-photo container">
-            <h3 className="section-title">We are {env.COMPANY}</h3>
+            <h3 className="section-title">We are {COMPANY}</h3>
 
             <h4 className="section-subtitle">
               Named before 3rd wave coffee shops and home-brewing became popular
