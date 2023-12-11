@@ -58,7 +58,7 @@ export let loader: LoaderFunction = async ({
   }
 };
 
-export async function action({ request, params, context }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_ENDPOINT } = process.env;
 
   if (!STORAGE_ENDPOINT && !STORAGE_ACCESS_KEY && !STORAGE_SECRET) {
@@ -333,12 +333,9 @@ export default function JobApply() {
   const handleOnSubmit = (event: any) => {
     setIsButtonDisabled(true);
     handleSubmit(() => {
-      fetcher.submit(
-        { form: event.currentTarget.form, jobTitle: job.title },
-        {
-          method: "POST",
-        }
-      );
+      fetcher.submit({
+        method: "POST",
+      });
     })();
   };
 
