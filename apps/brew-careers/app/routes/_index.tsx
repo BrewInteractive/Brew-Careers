@@ -30,7 +30,7 @@ export let loader: LoaderFunction = async (): Promise<JobsPageProps[]> => {
       };
     });
   } catch (error) {
-    throw new Error("Failed to load data");
+    throw new Error("Failed to load data, please try again later.");
   }
 };
 

@@ -2,14 +2,13 @@ import type {
   JobContentResponse,
   JobDetailProps,
 } from "~/lib/interfaces/job.detail";
-import type { TypedResponse } from "@remix-run/node";
-import {
-  redirect,
-  type LoaderFunction,
-  type MetaFunction,
+import type {
+  LoaderFunction,
+  MetaFunction,
+  TypedResponse,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 
+import { COMPANY } from "~/lib/config/companyInfo";
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Client } from "@notionhq/client";
@@ -17,9 +16,10 @@ import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import type { JobResponseResults } from "~/lib/interfaces/job";
 import React from "react";
-import notionBlocksToHtml from "util/notionBlocksToHtml/notionBlocksToHtml";
-import { COMPANY } from "~/lib/config/companyInfo";
 import getEnv from "util/enviroment";
+import notionBlocksToHtml from "util/notionBlocksToHtml/notionBlocksToHtml";
+import { redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -62,7 +62,7 @@ export let loader: LoaderFunction = async ({
 
     return jobsDetail;
   } catch (error) {
-    throw new Error("Failed to load data");
+    return redirect(`/`);
   }
 };
 

@@ -1,17 +1,17 @@
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
-import type { TypedResponse } from "@remix-run/node";
-import {
-  redirect,
-  type LoaderFunction,
-  type MetaFunction,
+import type {
+  LoaderFunction,
+  MetaFunction,
+  TypedResponse,
 } from "@remix-run/node";
 
+import { COMPANY } from "~/lib/config/companyInfo";
 import { Client } from "@notionhq/client";
 import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import React from "react";
+import { redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { COMPANY } from "~/lib/config/companyInfo";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -44,7 +44,7 @@ export let loader: LoaderFunction = async ({
       tag: job.properties.Tags.multi_select[0].name,
     };
   } catch (error) {
-    throw new Error("Failed to load data");
+    return redirect(`/`);
   }
 };
 

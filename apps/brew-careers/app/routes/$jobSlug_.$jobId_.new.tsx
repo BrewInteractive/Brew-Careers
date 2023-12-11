@@ -54,24 +54,15 @@ export let loader: LoaderFunction = async ({
       tag: job.properties.Tags.multi_select[0].name,
     };
   } catch (error) {
-    throw new Error("Failed to load data");
+    return redirect(`/`);
   }
 };
 
 export async function action({ request, params, context }: ActionFunctionArgs) {
   const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_ENDPOINT } = process.env;
 
-  // A
-  if (!STORAGE_ENDPOINT) {
-    throw new Error(`STORAGE_ENDPOINT is missing required configuration.`);
-  }
-
-  if (!STORAGE_ACCESS_KEY) {
-    throw new Error(`STORAGE_ACCESS_KEY is missing required configuration.`);
-  }
-
-  if (!STORAGE_SECRET) {
-    throw new Error(`STORAGE_SECRET is missing required configuration.`);
+  if (!STORAGE_ENDPOINT && !STORAGE_ACCESS_KEY && !STORAGE_SECRET) {
+    return redirect(`/`);
   }
 
   const formData = await request.formData();
@@ -80,10 +71,10 @@ export async function action({ request, params, context }: ActionFunctionArgs) {
 
   const client = new S3Client({
     region: "fra1",
-    endpoint: STORAGE_ENDPOINT,
+    endpoint: STORAGE_ENDPOINT ?? "",
     credentials: {
-      accessKeyId: STORAGE_ACCESS_KEY,
-      secretAccessKey: STORAGE_SECRET,
+      accessKeyId: STORAGE_ACCESS_KEY ?? "",
+      secretAccessKey: STORAGE_SECRET ?? "",
     },
   });
 

@@ -1,11 +1,14 @@
 import { type LinksFunction } from "@remix-run/node";
 import {
+  Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
+  useRouteError,
 } from "@remix-run/react";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
@@ -89,6 +92,29 @@ export default function App() {
         <Outlet />
         <ScrollRestoration />
         <LiveReload />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  return (
+    <html>
+      <head>
+        <title>{`Careers - Jobs - ${COMPANY}`}</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <h1>
+          {isRouteErrorResponse(error)
+            ? `${error.status} ${error.statusText}`
+            : error instanceof Error
+            ? error.message
+            : "Page not found"}
+        </h1>
         <Scripts />
       </body>
     </html>
