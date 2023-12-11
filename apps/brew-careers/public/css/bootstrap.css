@@ -8976,7 +8976,7 @@ line-he .header-component .cover h1.brand a:hover {
   margin-bottom: 100px;
 }
 .offer-component .sidebar {
-  margin-left: 10px;
+  /* margin-left: 10px; */
 }
 .offer-component .sidebar a.btn-grey-big {
   padding: 12px;
@@ -9235,6 +9235,13 @@ line-he .header-component .cover h1.brand a:hover {
   padding-left: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+@media screen and (max-width: 991px) {
+  .apply-form-component .question,
+  .apply-form-component .terms {
+    border-left: none;
+    padding-left: 0px;
+  }
 }
 .apply-form-component .question .form-group,
 .apply-form-component .terms .form-group {
