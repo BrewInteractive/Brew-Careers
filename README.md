@@ -28,7 +28,7 @@ note: yarn version must be minimum 4.0.2, node version must be minimum 20.9.0
 
 ## Useful links
 
-- Brew company website: https://brew.com
+- Brew company website: https://brewww.com
 - Remix: https://remix.run
 - Notion API: https://developers.notion.com/
 - Turbo Repo :https://turbo.build/repo/docs
