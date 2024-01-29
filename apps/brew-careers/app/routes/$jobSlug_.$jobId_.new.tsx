@@ -6,7 +6,7 @@ import type {
 } from "@remix-run/node";
 import { COMPANY, COMPANY_WEBSITE_EMAIL } from "~/lib/config/companyInfo";
 import type { JobResponseResults, JobsPageProps } from "~/lib/interfaces/job";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 
 import { Client } from "@notionhq/client";
@@ -90,13 +90,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
   };
 
   const randomFileName = `${uuid()}-${params.jobId}.${getFileExtension(
-    data?.cv?.name ?? ""
+    data.cv?.name ?? ""
   )}`;
+
+  if (!data.cv) return { error: `An error has occurred when file upload` };
 
   const uploadFileResponse = await uploadCvFile(
     client,
     randomFileName,
-    formData
+    data.cv
   );
 
   if (uploadFileResponse.$metadata.httpStatusCode === 200) {
@@ -137,18 +139,14 @@ const createApplication = (
   });
 };
 
-const uploadCvFile = (
-  client: S3Client,
-  randomFileName: string,
-  formData: globalThis.FormData
-) => {
+const uploadCvFile = (client: S3Client, randomFileName: string, cv: File) => {
   return new Upload({
     client,
     leavePartsOnError: false,
     params: {
       Bucket: "brew-careers",
       Key: randomFileName,
-      Body: formData.get("cv") as File,
+      Body: cv,
       ACL: "public-read",
     },
   }).done();
@@ -314,6 +312,8 @@ const generateApplicationRequest = (
 export default function JobApply() {
   const job = useLoaderData<JobsPageProps>();
 
+  const formRef = useRef(null);
+
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -330,13 +330,20 @@ export default function JobApply() {
     formState: { errors },
   } = useForm<ValidationSchema>({ resolver: zodResolver(validationSchema) });
 
-  const handleOnSubmit = (event: any) => {
-    setIsButtonDisabled(true);
-    handleSubmit(() => {
-      fetcher.submit({
-        method: "POST",
+  const handleOnSubmit = async (event: any) => {
+    if (formRef.current) {
+      const formData = new FormData(formRef.current);
+      formData.set("jobTitle", job.title);
+      fetcher.submit(formData, {
+        method: "post",
+        encType: "multipart/form-data",
       });
-    })();
+    }
+
+    setIsButtonDisabled(true);
+    setTimeout(() => {
+      setIsButtonDisabled(false);
+    }, 3000);
   };
 
   return (
@@ -346,15 +353,14 @@ export default function JobApply() {
         <div className="apply-form-component">
           <div className="container">
             <form
+              ref={formRef}
               noValidate
               className="simple_form new_candidate"
               method="post"
               encType="multipart/form-data"
-              onSubmit={handleOnSubmit}
+              onSubmit={handleSubmit(handleOnSubmit)}
             >
               <section>
-                <input hidden type="text" name="jobTitle" value={job.title} />
-
                 <div className="col-md-3 description">
                   <h3>My information</h3>
                   <p>Fill out the information below</p>
