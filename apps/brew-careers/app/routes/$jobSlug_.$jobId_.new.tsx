@@ -343,7 +343,7 @@ export default function JobApply() {
     setIsButtonDisabled(true);
     setTimeout(() => {
       setIsButtonDisabled(false);
-    }, 3000);
+    }, 2500);
   };
 
   return (
