@@ -32,7 +32,7 @@ const validationSchema = z.object({
     .any()
     .refine(
       (files) => {
-        return files?.[0].name !== "";
+        return files?.[0]?.name !== "";
       },
       {
         message: "cv is required.",
