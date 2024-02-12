@@ -4,6 +4,7 @@ import type {
   MetaFunction,
   TypedResponse,
 } from "@remix-run/node";
+import { useLoaderData, useLocation } from "@remix-run/react";
 
 import { COMPANY } from "~/lib/config/companyInfo";
 import { Client } from "@notionhq/client";
@@ -11,7 +12,6 @@ import Header from "~/components/header/header";
 import HeaderInfoJobDetail from "~/components/headerInfoJobDetail/headerInfoJobDetail";
 import React from "react";
 import { redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -50,6 +50,16 @@ export let loader: LoaderFunction = async ({
 
 export default function Applied() {
   const job = useLoaderData<JobsPageProps>();
+
+  const location = useLocation();
+
+  window.history.pushState(null, "", window.location.href);
+
+  window.onpopstate = function (event) {
+    let backUrl = location.pathname.slice(0, -"/applied".length) + "/new";
+
+    window.location.href = backUrl;
+  };
 
   return (
     <React.Fragment>
