@@ -330,7 +330,7 @@ export default function JobApply() {
     formState: { errors },
   } = useForm<ValidationSchema>({ resolver: zodResolver(validationSchema) });
 
-  const handleOnSubmit = async (event: any) => {
+  const handleOnSubmit = async () => {
     if (formRef.current) {
       const formData = new FormData(formRef.current);
       formData.set("jobTitle", job.title);
