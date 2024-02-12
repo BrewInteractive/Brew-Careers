@@ -19,7 +19,12 @@ const supportedFileTypes = [
 const yearRegex = /^\d{4}$/;
 
 const validationSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
+  name: z
+    .string()
+    .regex(/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/, {
+      message: "Name must contain only letters",
+    })
+    .min(1, { message: "Name is required" }),
   email: z
     .string()
     .min(1, { message: "Email is required" })
@@ -65,7 +70,9 @@ const validationSchema = z.object({
   birthYear: z.string().refine((value) => yearRegex.test(value), {
     message: "Please use a valid birth year format (YYYY)",
   }),
-  city: z.string().min(1, { message: "City is required" }),
+  city: z.string().refine((value) => value.trim().length > 0, {
+    message: "City is required",
+  }),
   acceptDataTransferAbroad: z.any().refine(
     (checked) => {
       return checked;
