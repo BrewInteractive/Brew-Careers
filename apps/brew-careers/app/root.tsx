@@ -34,7 +34,10 @@ export default function App() {
         <title>{`Careers - Jobs - ${COMPANY}`}</title>
         <meta charSet="utf-8" />
         <meta content="IE=Edge,chrome=1" httpEquiv="X-UA-Compatible" />
-        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
 
         <meta content={`Careers - Jobs - ${COMPANY}`} itemProp="description" />
         <meta content="summary_large_image" name="twitter:card" />

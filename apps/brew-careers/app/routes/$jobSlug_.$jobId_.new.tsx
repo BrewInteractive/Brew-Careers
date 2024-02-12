@@ -316,13 +316,14 @@ export default function JobApply() {
 
   const fetcher = useFetcher();
 
+  const [charCount, setCharCount] = useState<number>(2000);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
   useEffect(() => {
     if (fetcher.state === "idle") {
       setIsButtonDisabled(false);
     }
   }, [fetcher]);
-
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const {
     register,
@@ -344,6 +345,37 @@ export default function JobApply() {
     setTimeout(() => {
       setIsButtonDisabled(false);
     }, 2500);
+  };
+
+  const limitTextarea = (event: any) => {
+    const maxLength = 2000;
+    const currentLength = event.target.value.length;
+    const remainingLength = maxLength - currentLength;
+
+    if (remainingLength < 0) {
+      event.target.value = event.target.value.slice(0, maxLength);
+      setCharCount(0);
+    } else {
+      setCharCount(remainingLength);
+    }
+  };
+
+  const pasteHandler = (event: any) => {
+    const maxLength = 2000;
+    const pasteData = event.clipboardData.getData("text/plain");
+    const currentLength = event.target.value.length;
+    const remainingLength = maxLength - currentLength;
+
+    if (pasteData.length > remainingLength) {
+      event.preventDefault();
+      const truncatedPaste = pasteData.substring(0, remainingLength);
+      const currentText = event.target.value;
+      const newText =
+        currentText.substring(0, event.target.selectionStart) +
+        truncatedPaste +
+        currentText.substring(event.target.selectionEnd);
+      event.target.value = newText;
+    }
   };
 
   return (
@@ -378,7 +410,13 @@ export default function JobApply() {
                       Full name <abbr title="required">*</abbr>
                     </label>
                     <input
-                      {...register("name")}
+                      {...register("name", {
+                        required: true,
+                        pattern: {
+                          value: /^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/,
+                          message: "Name must contain only letters",
+                        },
+                      })}
                       className="string required form-control"
                       required
                       aria-required="true"
@@ -478,10 +516,10 @@ export default function JobApply() {
                       />
                     </div>
                     <span className={`help-block ${errors?.cv && "has-error"}`}>
-                      <span className={`help-block`}>
+                      <small className="form-text text-muted">
                         Accepted files: DOC, DOCX, PDF, ODT, RTF, JPEG and PNG
                         up to 10MB
-                      </span>
+                      </small>
                       {errors?.cv && (
                         <>
                           <br />
@@ -503,7 +541,13 @@ export default function JobApply() {
                       {...register("coverLetter")}
                       rows={5}
                       className="text optional form-control"
+                      onInput={limitTextarea}
+                      onPaste={pasteHandler}
+                      maxLength={2000}
                     ></textarea>
+                    <small className="form-text text-muted">
+                      Max {charCount} characters remaining
+                    </small>
                   </div>
                 </div>
               </section>
@@ -526,7 +570,14 @@ export default function JobApply() {
                         Year of birth <abbr title="required">*</abbr>
                       </label>
                       <input
-                        {...register("birthYear")}
+                        {...register("birthYear", {
+                          required: true,
+                          pattern: {
+                            value: /^(19[3-9]\d|20[0-1]\d|201[0-5])$/,
+                            message:
+                              "Please enter a birth year between 1930 and 2015",
+                          },
+                        })}
                         className="string required form-control"
                         required
                         aria-required="true"
